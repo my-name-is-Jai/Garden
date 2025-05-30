@@ -19,16 +19,21 @@
       gap: 10px;
     }
 
-    .flower {
+    .plant {
       width: 50px;
       height: 50px;
-      background: radial-gradient(circle, yellow, orange);
+      background: radial-gradient(circle, #aadfaa, #7cc67c);
       border-radius: 50%;
-      cursor: pointer;
+      cursor: default;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
+    }
+
+    .flower {
+      background: radial-gradient(circle, yellow, orange);
+      cursor: pointer;
     }
 
     #shop, #inventory {
@@ -80,18 +85,24 @@
       sunflower: 0
     };
 
+    const plantData = {
+      sunflower: {
+        cost: 10,
+        growTime: 25000, // 25 seconds
+        emoji: "🌻",
+        sellPrice: 15
+      }
+    };
+
     function updateUI() {
       document.getElementById('coins').textContent = coins;
       document.getElementById('sunflowerCount').textContent = inventory.sunflower;
     }
 
     function buySeed(type) {
-      const prices = {
-        sunflower: 10
-      };
-
-      if (coins >= prices[type]) {
-        coins -= prices[type];
+      const plant = plantData[type];
+      if (coins >= plant.cost) {
+        coins -= plant.cost;
         inventory[type]++;
         updateUI();
       } else {
@@ -103,18 +114,25 @@
       if (inventory[type] > 0) {
         inventory[type]--;
 
-        const flower = document.createElement("div");
-        flower.classList.add("flower");
-        flower.textContent = "🌻";
+        const plant = document.createElement("div");
+        plant.classList.add("plant");
+        plant.textContent = "🌱";
 
-        flower.addEventListener("click", () => {
-          garden.removeChild(flower);
-          coins += 15; // Earn 15 coins per flower
-          updateUI();
-        });
-
-        document.getElementById("garden").appendChild(flower);
+        document.getElementById("garden").appendChild(plant);
         updateUI();
+
+        const { growTime, emoji, sellPrice } = plantData[type];
+
+        setTimeout(() => {
+          plant.classList.add("flower");
+          plant.textContent = emoji;
+          plant.style.cursor = "pointer";
+          plant.addEventListener("click", () => {
+            plant.remove();
+            coins += sellPrice;
+            updateUI();
+          });
+        }, growTime);
       } else {
         alert("No seeds!");
       }
