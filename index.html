@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Garden Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #cdeccd;
+      padding: 2rem;
+    }
+
+    #garden {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .flower {
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle, yellow, orange);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    #shop, #inventory {
+      margin: 1rem 0;
+    }
+
+    button {
+      margin: 0.3rem;
+      padding: 0.5rem 1rem;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #77cc77;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #66bb66;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌻 My Garden Game</h1>
+  <p>Coins: <span id="coins">100</span></p>
+
+  <div id="shop">
+    <h2>Seed Shop</h2>
+    <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button>
+  </div>
+
+  <div id="inventory">
+    <h2>Inventory</h2>
+    <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
+    <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
+  </div>
+
+  <h2>Garden</h2>
+  <div id="garden"></div>
+
+  <script>
+    let coins = 100;
+    let inventory = {
+      sunflower: 0
+    };
+
+    function updateUI() {
+      document.getElementById('coins').textContent = coins;
+      document.getElementById('sunflowerCount').textContent = inventory.sunflower;
+    }
+
+    function buySeed(type) {
+      const prices = {
+        sunflower: 10
+      };
+
+      if (coins >= prices[type]) {
+        coins -= prices[type];
+        inventory[type]++;
+        updateUI();
+      } else {
+        alert("Not enough coins!");
+      }
+    }
+
+    function plantSeed(type) {
+      if (inventory[type] > 0) {
+        inventory[type]--;
+
+        const flower = document.createElement("div");
+        flower.classList.add("flower");
+        flower.textContent = "🌻";
+
+        flower.addEventListener("click", () => {
+          garden.removeChild(flower);
+          coins += 15; // Earn 15 coins per flower
+          updateUI();
+        });
+
+        document.getElementById("garden").appendChild(flower);
+        updateUI();
+      } else {
+        alert("No seeds!");
+      }
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
