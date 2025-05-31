@@ -76,6 +76,8 @@
     .blueberry {
       background: radial-gradient(circle, lightblue, darkblue);
     }
+    .tulip {
+      background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 0, 136));
 
     .fertilized {
       animation: glow 1s infinite alternate;
@@ -147,6 +149,7 @@
       <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button><br>
       <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button><br>
       <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
+      <button onclick="buySeed('tulip')">Buy tulip Seed (600 coins)</button><br>
     </div>
 
     <div id="inventory">
@@ -154,11 +157,13 @@
       <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
       <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
       <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
+      <p>tulip Seeds: <span id="tulipCount">0</span></p>
       <p>Fertilizer: <span id="fertilizerCount">0</span></p>
       <p>Watering Can: <span id="wateringCount">0</span></p>
       <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
       <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
       <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
+      <button onclick="plantSeed('tulip')">Plant Tulip 🌱</button>
     </div>
 
     <div id="gearShop">
@@ -188,6 +193,7 @@
       sunflower: 0,
       strawberry: 0,
       blueberry: 0,
+      tulip: 0,
       fertilizer: 0,
       wateringCan: 0
     };
@@ -195,7 +201,8 @@
     const plantData = {
       sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
       strawberry: { cost: 50, growTime: 60000, emoji: "🍓", class: "strawberry", sellPrice: 20, regrows: true },
-      blueberry: { cost: 400, growTime: 120000, emoji: "🫐", class: "blueberry", sellPrice: 75, regrows: true }
+      blueberry: { cost: 400, growTime: 120000, emoji: "🫐", class: "blueberry", sellPrice: 75, regrows: true },
+      tulip: { cost: 600, growTime: 50000, emoji: "🌷", class: "tulip", sellPrice: 1000, regrows: false },
     };
 
     function updateUI() {
@@ -203,6 +210,7 @@
       document.getElementById('sunflowerCount').textContent = inventory.sunflower;
       document.getElementById('strawberryCount').textContent = inventory.strawberry;
       document.getElementById('blueberryCount').textContent = inventory.blueberry;
+      document.getElementById('tulipCount').textContent = inventory.tulip;
       document.getElementById('fertilizerCount').textContent = inventory.fertilizer;
       document.getElementById('wateringCount').textContent = inventory.wateringCan;
     }
