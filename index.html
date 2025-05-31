@@ -312,7 +312,17 @@
       if (plant.dataset.fertilized === "true" || plant.dataset.ready === "true") return;
       inventory.fertilizer--;
       plant.dataset.fertilized = "true";
-      plant.dataset.growTime = plant.dataset.growTime/2
+
+      duration = plant.dataset.growTime/2
+        const grow = () => {
+        plant.textContent = p.emoji;
+        plant.classList.add("flower", p.class);
+        plant.dataset.ready = "true";
+        clearInterval(interval);
+      }
+
+      setTimeout(grow, duration);
+    
       plant.classList.add("fertilized");
       updateUI();
     }
