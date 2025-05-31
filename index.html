@@ -270,8 +270,22 @@
       setTimeout(grow, duration);
 
       plant.onclick = () => {
-        selectedPlant = { el: plant, type, growTime: duration, sell: p.sellPrice };
-        showPlantInfoPanel(type, p.sellPrice, duration, plant);
+        if (plant.dataset.ready === "true") {
+          coins += p.sellPrice;
+          updateUI();
+          if (p.regrows) {
+            plant.textContent = "🌱";
+            plant.classList.remove(p.class, "flower", "fertilized");
+            plant.dataset.ready = "false";
+            setTimeout(grow, duration);
+          } else {
+            clearInterval(interval);
+            plant.remove();
+          }
+        } else {
+          selectedPlant = { el: plant, type, growTime: duration, sell: p.sellPrice };
+          showPlantInfoPanel(type, p.sellPrice, duration, plant);
+        }
       };
     }
 
