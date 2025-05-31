@@ -100,6 +100,7 @@
     <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button>
     <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button>
     <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
+    <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button>
   </div>
 
   <div id="inventory">
@@ -107,6 +108,7 @@
     <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
     <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
     <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
+    <p>Fertilizer: <span id="fertilizerCount">0</span></p>
     <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
     <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
     <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
@@ -120,7 +122,8 @@
     let inventory = {
       sunflower: 0,
       strawberry: 0,
-      blueberry: 0
+      blueberry: 0,
+      fertilizer: 0
     };
 
     const plantData = {
@@ -142,7 +145,7 @@
       },
       blueberry: {
         cost: 400,
-        growTime: 120000, // 2 minutes
+        growTime: 120000,
         emoji: "🫐",
         class: "blueberry",
         sellPrice: 75,
@@ -155,6 +158,7 @@
       document.getElementById('sunflowerCount').textContent = inventory.sunflower;
       document.getElementById('strawberryCount').textContent = inventory.strawberry;
       document.getElementById('blueberryCount').textContent = inventory.blueberry;
+      document.getElementById('fertilizerCount').textContent = inventory.fertilizer;
     }
 
     function buySeed(type) {
@@ -165,6 +169,16 @@
         updateUI();
       } else {
         alert("Not enough coins!");
+      }
+    }
+
+    function buyFertilizer() {
+      if (coins >= 50) {
+        coins -= 50;
+        inventory.fertilizer++;
+        updateUI();
+      } else {
+        alert("Not enough coins for fertilizer!");
       }
     }
 
@@ -184,55 +198,68 @@
 
         document.getElementById("garden").appendChild(plant);
 
-        const plantedAt = Date.now();
-        const readyAt = plantedAt + data.growTime;
+        let plantedAt = Date.now();
+        let growDuration = data.growTime;
+        let readyAt = plantedAt + growDuration;
+        let fertilized = false;
 
         const interval = setInterval(() => {
           const remaining = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
-          if (remaining > 0) {
-            tooltip.textContent = `${remaining}s remaining`;
-          } else {
-            tooltip.textContent = `Ready to harvest!`;
-            clearInterval(interval);
-          }
+          tooltip.textContent = remaining > 0 ? `${remaining}s remaining` : "Ready to harvest!";
         }, 500);
 
-        function grow() {
-          plant.classList.add("flower", data.class);
-          plant.textContent = data.emoji;
-          plant.appendChild(tooltip); // keep tooltip
-          plant.style.cursor = "pointer";
-
-          plant.onclick = () => {
+        plant.onclick = () => {
+          if (plant.classList.contains("flower")) {
             coins += data.sellPrice;
             updateUI();
             if (data.regrows) {
+              // Reset for regrowth
               plant.textContent = "🌱";
               plant.classList.remove(data.class);
               plant.style.cursor = "default";
               plant.onclick = null;
-
-              const newPlantedAt = Date.now();
-              const newReadyAt = newPlantedAt + data.growTime;
-
-              const regrowInterval = setInterval(() => {
-                const remaining = Math.max(0, Math.floor((newReadyAt - Date.now()) / 1000));
-                if (remaining > 0) {
-                  tooltip.textContent = `${remaining}s remaining`;
-                } else {
-                  tooltip.textContent = `Ready to harvest!`;
-                  clearInterval(regrowInterval);
-                }
-              }, 500);
-
-              setTimeout(grow, data.growTime);
+              fertilized = false;
+              growAgain();
             } else {
               plant.remove();
+              clearInterval(interval);
             }
-          };
+          } else if (!fertilized && inventory.fertilizer > 0) {
+            // Use fertilizer
+            const remaining = readyAt - Date.now();
+            growDuration = remaining / 2;
+            readyAt = Date.now() + growDuration;
+            fertilized = true;
+            inventory.fertilizer--;
+            updateUI();
+          }
+        };
+
+        function growAgain() {
+          plantedAt = Date.now();
+          readyAt = plantedAt + data.growTime;
+          fertilized = false;
+
+          const regrowInterval = setInterval(() => {
+            const remaining = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
+            tooltip.textContent = remaining > 0 ? `${remaining}s remaining` : "Ready to harvest!";
+          }, 500);
+
+          setTimeout(() => {
+            plant.classList.add("flower", data.class);
+            plant.textContent = data.emoji;
+            plant.style.cursor = "pointer";
+            clearInterval(regrowInterval);
+          }, data.growTime);
         }
 
-        setTimeout(grow, data.growTime);
+        setTimeout(() => {
+          plant.classList.add("flower", data.class);
+          plant.textContent = data.emoji;
+          plant.style.cursor = "pointer";
+          clearInterval(interval);
+        }, growDuration);
+
         updateUI();
       } else {
         alert("No seeds!");
