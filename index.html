@@ -307,15 +307,15 @@
     }
 
     function applyFertilizerToInfo() {
-       console.log("####applyFertilizerToInfo#####")
+      alert("####applyFertilizerToInfo#####")
       if (!selectedPlant || inventory.fertilizer <= 0) return;
       const plant = selectedPlant.el;
       if (plant.dataset.fertilized === "true" || plant.dataset.ready === "true") return;
       inventory.fertilizer--;
-      console.log("####applyFertilizerToInfo#####")
+      alert("####applyFertilizerToInfo#####")
       plant.dataset.fertilized = "true";
       plant.classList.add("fertilized");
-      console.log("####applyFertilizerToInfo#####")
+      alert("####applyFertilizerToInfo#####")
       updateUI();
     }
 
