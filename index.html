@@ -44,6 +44,10 @@
       background: radial-gradient(circle, pink, red);
     }
 
+    .blueberry {
+      background: radial-gradient(circle, lightblue, darkblue);
+    }
+
     #shop, #inventory {
       margin: 1rem 0;
     }
@@ -95,14 +99,17 @@
     <h2>Seed Shop</h2>
     <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button>
     <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button>
+    <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
   </div>
 
   <div id="inventory">
     <h2>Inventory</h2>
     <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
     <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
+    <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
     <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
     <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
+    <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
   </div>
 
   <h2>Garden</h2>
@@ -112,7 +119,8 @@
     let coins = 100;
     let inventory = {
       sunflower: 0,
-      strawberry: 0
+      strawberry: 0,
+      blueberry: 0
     };
 
     const plantData = {
@@ -131,6 +139,14 @@
         class: "strawberry",
         sellPrice: 20,
         regrows: true
+      },
+      blueberry: {
+        cost: 400,
+        growTime: 120000, // 2 minutes
+        emoji: "🫐",
+        class: "blueberry",
+        sellPrice: 75,
+        regrows: true
       }
     };
 
@@ -138,6 +154,7 @@
       document.getElementById('coins').textContent = coins;
       document.getElementById('sunflowerCount').textContent = inventory.sunflower;
       document.getElementById('strawberryCount').textContent = inventory.strawberry;
+      document.getElementById('blueberryCount').textContent = inventory.blueberry;
     }
 
     function buySeed(type) {
@@ -170,7 +187,6 @@
         const plantedAt = Date.now();
         const readyAt = plantedAt + data.growTime;
 
-        // Update tooltip every 0.5 seconds
         const interval = setInterval(() => {
           const remaining = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
           if (remaining > 0) {
@@ -184,7 +200,7 @@
         function grow() {
           plant.classList.add("flower", data.class);
           plant.textContent = data.emoji;
-          plant.appendChild(tooltip); // Keep tooltip on top
+          plant.appendChild(tooltip); // keep tooltip
           plant.style.cursor = "pointer";
 
           plant.onclick = () => {
@@ -196,7 +212,6 @@
               plant.style.cursor = "default";
               plant.onclick = null;
 
-              // reset timer and tooltip
               const newPlantedAt = Date.now();
               const newReadyAt = newPlantedAt + data.growTime;
 
