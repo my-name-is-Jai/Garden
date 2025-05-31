@@ -6,9 +6,37 @@
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
       background: #cdeccd;
-      padding: 2rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin: 1rem 0 0.5rem;
+    }
+
+    #coinsDisplay {
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    #main {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem;
+    }
+
+    #shop, #inventory, #fertilizerPanel {
+      padding: 1rem;
+      border-radius: 10px;
+      background: #e0ffe0;
+      width: 30%;
+    }
+
+    #fertilizerPanel {
+      text-align: right;
     }
 
     #garden {
@@ -57,10 +85,6 @@
       to { box-shadow: 0 0 10px 5px #ffff55; }
     }
 
-    #shop, #inventory {
-      margin: 1rem 0;
-    }
-
     button {
       margin: 0.3rem;
       padding: 0.5rem 1rem;
@@ -75,10 +99,6 @@
 
     button:hover {
       background-color: #66bb66;
-    }
-
-    h1 {
-      font-size: 2rem;
     }
 
     .tooltip {
@@ -102,29 +122,39 @@
 </head>
 <body>
   <h1>🌻 My Garden Game</h1>
-  <p>Coins: <span id="coins">100</span></p>
+  <div id="coinsDisplay">Coins: <span id="coins">100</span></div>
 
-  <div id="shop">
-    <h2>Seed Shop</h2>
-    <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button>
-    <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button>
-    <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
-    <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button>
-    <button onclick="startFertilizerMode()">Use Fertilizer</button>
+  <div id="main">
+    <!-- Left: Seed Shop -->
+    <div id="shop">
+      <h2>Seed Shop</h2>
+      <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button><br>
+      <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button><br>
+      <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
+    </div>
+
+    <!-- Middle: Inventory & Use Fertilizer -->
+    <div id="inventory">
+      <h2>Inventory</h2>
+      <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
+      <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
+      <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
+      <p>Fertilizer: <span id="fertilizerCount">0</span></p>
+      <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
+      <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
+      <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
+      <br><br>
+      <button onclick="startFertilizerMode()">Use Fertilizer</button>
+    </div>
+
+    <!-- Right: Buy Fertilizer -->
+    <div id="fertilizerPanel">
+      <h2>Fertilizer</h2>
+      <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button>
+    </div>
   </div>
 
-  <div id="inventory">
-    <h2>Inventory</h2>
-    <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
-    <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
-    <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
-    <p>Fertilizer: <span id="fertilizerCount">0</span></p>
-    <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
-    <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
-    <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
-  </div>
-
-  <h2>Garden</h2>
+  <h2 style="text-align:center">Garden</h2>
   <div id="garden"></div>
 
   <script>
@@ -190,7 +220,7 @@
         inventory.fertilizer++;
         updateUI();
       } else {
-        alert("Not enough coins for fertilizer!");
+        alert("Not enough coins!");
       }
     }
 
@@ -200,7 +230,7 @@
         return;
       }
       fertilizerMode = true;
-      alert("Fertilizer mode ON! Click a plant to fertilize it.");
+      alert("Fertilizer mode ON! Click a growing plant to apply.");
     }
 
     function plantSeed(type) {
@@ -233,7 +263,6 @@
 
         plant.onclick = () => {
           if (fertilizerMode && !fertilized && plant.textContent === "🌱") {
-            // Apply fertilizer
             const remaining = readyAt - Date.now();
             readyAt = Date.now() + remaining / 2;
             fertilized = true;
