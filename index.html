@@ -307,15 +307,13 @@
     }
 
     function applyFertilizerToInfo() {
-      alert("####applyFertilizerToInfo#####")
       if (!selectedPlant || inventory.fertilizer <= 0) return;
       const plant = selectedPlant.el;
       if (plant.dataset.fertilized === "true" || plant.dataset.ready === "true") return;
       inventory.fertilizer--;
-      alert("####applyFertilizerToInfo#####")
       plant.dataset.fertilized = "true";
+      plant.dataset.growTime = plant.dataset.growTime/2
       plant.classList.add("fertilized");
-      alert("####applyFertilizerToInfo#####")
       updateUI();
     }
 
