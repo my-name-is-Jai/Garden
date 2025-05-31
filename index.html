@@ -58,6 +58,7 @@
       font-size: 16px;
       position: relative;
       transition: box-shadow 0.3s;
+      cursor: pointer;
     }
 
     .flower {
@@ -118,6 +119,22 @@
     .plant:hover .tooltip {
       display: block;
     }
+
+    #plantInfoPanel {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      background: #fff;
+      border: 2px solid #77cc77;
+      border-radius: 10px;
+      padding: 1rem;
+      width: 200px;
+      display: none;
+    }
+
+    #plantInfoPanel h3 {
+      margin: 0 0 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -125,7 +142,6 @@
   <div id="coinsDisplay">Coins: <span id="coins">100</span></div>
 
   <div id="main">
-    <!-- Left: Seed Shop -->
     <div id="shop">
       <h2>Seed Shop</h2>
       <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button><br>
@@ -133,7 +149,6 @@
       <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
     </div>
 
-    <!-- Middle: Inventory -->
     <div id="inventory">
       <h2>Inventory</h2>
       <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
@@ -144,12 +159,8 @@
       <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
       <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
       <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
-      <br><br>
-      <button onclick="startFertilizerMode()">Use Fertilizer</button>
-      <button onclick="startWateringMode()">Use Watering Can</button>
     </div>
 
-    <!-- Right: Gear Shop -->
     <div id="gearShop">
       <h2>Gear Shop</h2>
       <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button><br>
@@ -160,12 +171,20 @@
   <h2 style="text-align:center">Garden</h2>
   <div id="garden"></div>
 
+  <div id="plantInfoPanel">
+    <h3>Plant Info</h3>
+    <p id="infoType"></p>
+    <p id="infoSell"></p>
+    <p id="infoTime"></p>
+    <button onclick="applyFertilizerToInfo()">Use Fertilizer</button>
+    <button onclick="applyWateringToInfo()">Use Watering Can</button>
+  </div>
+
   <script>
     let coins = 100;
-    let fertilizerMode = false;
-    let wateringMode = false;
+    let selectedPlant = null;
 
-    let inventory = {
+    const inventory = {
       sunflower: 0,
       strawberry: 0,
       blueberry: 0,
@@ -174,30 +193,9 @@
     };
 
     const plantData = {
-      sunflower: {
-        cost: 10,
-        growTime: 25000,
-        emoji: "🌻",
-        class: "sunflower",
-        sellPrice: 15,
-        regrows: false
-      },
-      strawberry: {
-        cost: 50,
-        growTime: 60000,
-        emoji: "🍓",
-        class: "strawberry",
-        sellPrice: 20,
-        regrows: true
-      },
-      blueberry: {
-        cost: 400,
-        growTime: 120000,
-        emoji: "🫐",
-        class: "blueberry",
-        sellPrice: 75,
-        regrows: true
-      }
+      sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
+      strawberry: { cost: 50, growTime: 60000, emoji: "🍓", class: "strawberry", sellPrice: 20, regrows: true },
+      blueberry: { cost: 400, growTime: 120000, emoji: "🫐", class: "blueberry", sellPrice: 75, regrows: true }
     };
 
     function updateUI() {
@@ -210,13 +208,11 @@
     }
 
     function buySeed(type) {
-      const plant = plantData[type];
-      if (coins >= plant.cost) {
-        coins -= plant.cost;
+      const p = plantData[type];
+      if (coins >= p.cost) {
+        coins -= p.cost;
         inventory[type]++;
         updateUI();
-      } else {
-        alert("Not enough coins!");
       }
     }
 
@@ -225,8 +221,6 @@
         coins -= 50;
         inventory.fertilizer++;
         updateUI();
-      } else {
-        alert("Not enough coins!");
       }
     }
 
@@ -235,120 +229,80 @@
         coins -= 150;
         inventory.wateringCan++;
         updateUI();
-      } else {
-        alert("Not enough coins!");
       }
-    }
-
-    function startFertilizerMode() {
-      if (inventory.fertilizer <= 0) {
-        alert("You don't have any fertilizer!");
-        return;
-      }
-      fertilizerMode = true;
-      alert("Fertilizer mode ON! Click a growing plant to apply.");
-    }
-
-    function startWateringMode() {
-      if (inventory.wateringCan <= 0) {
-        alert("You don't have any watering cans!");
-        return;
-      }
-      wateringMode = true;
-      alert("Watering Can mode ON! Click a growing plant to finish instantly.");
     }
 
     function plantSeed(type) {
-      if (inventory[type] > 0) {
-        inventory[type]--;
-        const data = plantData[type];
+      if (inventory[type] <= 0) return alert("No seeds!");
+      inventory[type]--;
+      updateUI();
 
-        const plant = document.createElement("div");
-        plant.classList.add("plant");
-        plant.textContent = "🌱";
+      const p = plantData[type];
+      const plant = document.createElement("div");
+      plant.classList.add("plant");
+      plant.dataset.type = type;
+      plant.dataset.fertilized = "false";
+      plant.dataset.ready = "false";
 
-        const tooltip = document.createElement("div");
-        tooltip.className = "tooltip";
-        tooltip.textContent = "Growing...";
-        plant.appendChild(tooltip);
+      const tooltip = document.createElement("div");
+      tooltip.className = "tooltip";
+      plant.appendChild(tooltip);
 
-        document.getElementById("garden").appendChild(plant);
+      document.getElementById("garden").appendChild(plant);
 
-        let growDuration = data.growTime;
-        let fertilized = false;
-        let plantedAt = Date.now();
-        let readyAt = plantedAt + growDuration;
+      let duration = p.growTime;
+      let plantedAt = Date.now();
+      let readyAt = plantedAt + duration;
 
-        const updateTooltip = () => {
-          const remaining = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
-          tooltip.textContent = remaining > 0 ? `${remaining}s remaining` : "Ready to harvest!";
-        };
+      const interval = setInterval(() => {
+        let now = Date.now();
+        let left = Math.max(0, Math.floor((readyAt - now) / 1000));
+        tooltip.textContent = left > 0 ? `${left}s remaining` : "Ready!";
+      }, 500);
 
-        const interval = setInterval(updateTooltip, 500);
-
-        plant.onclick = () => {
-          const now = Date.now();
-
-          if (fertilizerMode && !fertilized && plant.textContent === "🌱") {
-            const remaining = readyAt - now;
-            readyAt = now + remaining / 2;
-            fertilized = true;
-            plant.classList.add("fertilized");
-            inventory.fertilizer--;
-            fertilizerMode = false;
-            updateUI();
-            return;
-          }
-
-          if (wateringMode && plant.textContent === "🌱") {
-            readyAt = now;
-            inventory.wateringCan--;
-            wateringMode = false;
-            updateUI();
-            return;
-          }
-
-          if (plant.classList.contains("flower")) {
-            coins += data.sellPrice;
-            updateUI();
-            if (data.regrows) {
-              plant.textContent = "🌱";
-              plant.classList.remove(data.class, "flower", "fertilized");
-              growAgain();
-            } else {
-              clearInterval(interval);
-              plant.remove();
-            }
-          }
-        };
-
-        function growAgain() {
-          plantedAt = Date.now();
-          readyAt = plantedAt + growDuration;
-          fertilized = false;
-
-          const regrowInterval = setInterval(() => {
-            const remaining = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
-            tooltip.textContent = remaining > 0 ? `${remaining}s remaining` : "Ready to harvest!";
-          }, 500);
-
-          setTimeout(() => {
-            plant.textContent = data.emoji;
-            plant.classList.add("flower", data.class);
-            clearInterval(regrowInterval);
-          }, growDuration);
-        }
-
-        setTimeout(() => {
-          plant.textContent = data.emoji;
-          plant.classList.add("flower", data.class);
-          clearInterval(interval);
-        }, growDuration);
-
-        updateUI();
-      } else {
-        alert("No seeds!");
+      const grow = () => {
+        plant.textContent = p.emoji;
+        plant.classList.add("flower", p.class);
+        plant.dataset.ready = "true";
+        clearInterval(interval);
       }
+
+      setTimeout(grow, duration);
+
+      plant.onclick = () => {
+        selectedPlant = { el: plant, type, growTime: duration, sell: p.sellPrice };
+        showPlantInfoPanel(type, p.sellPrice, duration, plant);
+      };
+    }
+
+    function showPlantInfoPanel(type, sellPrice, growTime, plantEl) {
+      const panel = document.getElementById("plantInfoPanel");
+      document.getElementById("infoType").textContent = `Type: ${type}`;
+      document.getElementById("infoSell").textContent = `Sell Price: ${sellPrice}`;
+      const remaining = plantEl.dataset.ready === "true" ? 0 : Math.ceil((parseInt(plantEl.dataset.readyAt) - Date.now()) / 1000);
+      document.getElementById("infoTime").textContent = plantEl.textContent === "🌱" ? `Growing` : `Ready to harvest!`;
+      panel.style.display = "block";
+    }
+
+    function applyFertilizerToInfo() {
+      if (!selectedPlant || inventory.fertilizer <= 0) return;
+      const plant = selectedPlant.el;
+      if (plant.dataset.fertilized === "true" || plant.dataset.ready === "true") return;
+      inventory.fertilizer--;
+      plant.dataset.fertilized = "true";
+      plant.classList.add("fertilized");
+      updateUI();
+    }
+
+    function applyWateringToInfo() {
+      if (!selectedPlant || inventory.wateringCan <= 0) return;
+      const plant = selectedPlant.el;
+      if (plant.dataset.ready === "true") return;
+      inventory.wateringCan--;
+      plant.textContent = plantData[selectedPlant.type].emoji;
+      plant.classList.add("flower", plantData[selectedPlant.type].class);
+      plant.dataset.ready = "true";
+      updateUI();
     }
 
     updateUI();
