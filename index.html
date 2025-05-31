@@ -32,8 +32,15 @@
     }
 
     .flower {
-      background: radial-gradient(circle, yellow, orange);
       cursor: pointer;
+    }
+
+    .sunflower {
+      background: radial-gradient(circle, yellow, orange);
+    }
+
+    .strawberry {
+      background: radial-gradient(circle, pink, red);
     }
 
     #shop, #inventory {
@@ -68,12 +75,15 @@
   <div id="shop">
     <h2>Seed Shop</h2>
     <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button>
+    <button onclick="buySeed('strawberry')">Buy Strawberry Seed (15 coins)</button>
   </div>
 
   <div id="inventory">
     <h2>Inventory</h2>
     <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
+    <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
     <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
+    <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
   </div>
 
   <h2>Garden</h2>
@@ -82,7 +92,8 @@
   <script>
     let coins = 100;
     let inventory = {
-      sunflower: 0
+      sunflower: 0,
+      strawberry: 0
     };
 
     const plantData = {
@@ -90,13 +101,24 @@
         cost: 10,
         growTime: 25000, // 25 seconds
         emoji: "🌻",
-        sellPrice: 15
+        class: "sunflower",
+        sellPrice: 15,
+        regrows: false
+      },
+      strawberry: {
+        cost: 15,
+        growTime: 60000, // 1 minute = 60,000 milliseconds
+        emoji: "🍓",
+        class: "strawberry",
+        sellPrice: 10,
+        regrows: true
       }
     };
 
     function updateUI() {
       document.getElementById('coins').textContent = coins;
       document.getElementById('sunflowerCount').textContent = inventory.sunflower;
+      document.getElementById('strawberryCount').textContent = inventory.strawberry;
     }
 
     function buySeed(type) {
@@ -113,26 +135,35 @@
     function plantSeed(type) {
       if (inventory[type] > 0) {
         inventory[type]--;
+        const data = plantData[type];
 
         const plant = document.createElement("div");
         plant.classList.add("plant");
         plant.textContent = "🌱";
-
         document.getElementById("garden").appendChild(plant);
-        updateUI();
 
-        const { growTime, emoji, sellPrice } = plantData[type];
-
-        setTimeout(() => {
-          plant.classList.add("flower");
-          plant.textContent = emoji;
+        function grow() {
+          plant.classList.add("flower", data.class);
+          plant.textContent = data.emoji;
           plant.style.cursor = "pointer";
-          plant.addEventListener("click", () => {
-            plant.remove();
-            coins += sellPrice;
+
+          plant.onclick = () => {
+            coins += data.sellPrice;
             updateUI();
-          });
-        }, growTime);
+            if (data.regrows) {
+              plant.textContent = "🌱";
+              plant.classList.remove(data.class);
+              plant.style.cursor = "default";
+              plant.onclick = null;
+              setTimeout(grow, data.growTime);
+            } else {
+              plant.remove();
+            }
+          };
+        }
+
+        setTimeout(grow, data.growTime);
+        updateUI();
       } else {
         alert("No seeds!");
       }
