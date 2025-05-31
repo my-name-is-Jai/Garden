@@ -315,8 +315,8 @@
 
       duration = plant.dataset.growTime/2
         const grow = () => {
-        plant.textContent = p.emoji;
-        plant.classList.add("flower", p.class);
+        plant.textContent = plant.emoji;
+        plant.classList.add("flower", plant.class);
         plant.dataset.ready = "true";
         clearInterval(interval);
       }
