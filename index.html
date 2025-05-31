@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>My Garden Game</title>
   <style>
     body {
@@ -24,12 +24,12 @@
       height: 50px;
       background: radial-gradient(circle, #aadfaa, #7cc67c);
       border-radius: 50%;
-      cursor: default;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
       position: relative;
+      transition: box-shadow 0.3s;
     }
 
     .flower {
@@ -46,6 +46,15 @@
 
     .blueberry {
       background: radial-gradient(circle, lightblue, darkblue);
+    }
+
+    .fertilized {
+      animation: glow 1s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 5px 2px #ffffaa; }
+      to { box-shadow: 0 0 10px 5px #ffff55; }
     }
 
     #shop, #inventory {
@@ -101,6 +110,7 @@
     <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button>
     <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
     <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button>
+    <button onclick="startFertilizerMode()">Use Fertilizer</button>
   </div>
 
   <div id="inventory">
@@ -119,6 +129,8 @@
 
   <script>
     let coins = 100;
+    let fertilizerMode = false;
+
     let inventory = {
       sunflower: 0,
       strawberry: 0,
@@ -182,6 +194,15 @@
       }
     }
 
+    function startFertilizerMode() {
+      if (inventory.fertilizer <= 0) {
+        alert("You don't have any fertilizer!");
+        return;
+      }
+      fertilizerMode = true;
+      alert("Fertilizer mode ON! Click a plant to fertilize it.");
+    }
+
     function plantSeed(type) {
       if (inventory[type] > 0) {
         inventory[type]--;
@@ -198,46 +219,49 @@
 
         document.getElementById("garden").appendChild(plant);
 
-        let plantedAt = Date.now();
         let growDuration = data.growTime;
-        let readyAt = plantedAt + growDuration;
         let fertilized = false;
+        let plantedAt = Date.now();
+        let readyAt = plantedAt + growDuration;
 
-        const interval = setInterval(() => {
+        const updateTooltip = () => {
           const remaining = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
           tooltip.textContent = remaining > 0 ? `${remaining}s remaining` : "Ready to harvest!";
-        }, 500);
+        };
+
+        const interval = setInterval(updateTooltip, 500);
 
         plant.onclick = () => {
+          if (fertilizerMode && !fertilized && plant.textContent === "🌱") {
+            // Apply fertilizer
+            const remaining = readyAt - Date.now();
+            readyAt = Date.now() + remaining / 2;
+            fertilized = true;
+            plant.classList.add("fertilized");
+            inventory.fertilizer--;
+            updateUI();
+            fertilizerMode = false;
+            return;
+          }
+
           if (plant.classList.contains("flower")) {
             coins += data.sellPrice;
             updateUI();
             if (data.regrows) {
-              // Reset for regrowth
               plant.textContent = "🌱";
-              plant.classList.remove(data.class);
-              plant.style.cursor = "default";
-              plant.onclick = null;
-              fertilized = false;
+              plant.classList.remove(data.class, "flower", "fertilized");
               growAgain();
             } else {
-              plant.remove();
               clearInterval(interval);
+              plant.remove();
             }
-          } else if (!fertilized && inventory.fertilizer > 0) {
-            // Use fertilizer
-            const remaining = readyAt - Date.now();
-            growDuration = remaining / 2;
-            readyAt = Date.now() + growDuration;
-            fertilized = true;
-            inventory.fertilizer--;
-            updateUI();
           }
         };
 
         function growAgain() {
           plantedAt = Date.now();
-          readyAt = plantedAt + data.growTime;
+          growDuration = data.growTime;
+          readyAt = plantedAt + growDuration;
           fertilized = false;
 
           const regrowInterval = setInterval(() => {
@@ -246,17 +270,15 @@
           }, 500);
 
           setTimeout(() => {
-            plant.classList.add("flower", data.class);
             plant.textContent = data.emoji;
-            plant.style.cursor = "pointer";
+            plant.classList.add("flower", data.class);
             clearInterval(regrowInterval);
-          }, data.growTime);
+          }, growDuration);
         }
 
         setTimeout(() => {
-          plant.classList.add("flower", data.class);
           plant.textContent = data.emoji;
-          plant.style.cursor = "pointer";
+          plant.classList.add("flower", data.class);
           clearInterval(interval);
         }, growDuration);
 
