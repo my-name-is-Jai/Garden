@@ -78,7 +78,7 @@
     }
     .tulip {
       background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 0, 136));
-
+    }
     .fertilized {
       animation: glow 1s infinite alternate;
     }
@@ -148,7 +148,7 @@
       <h2>Seed Shop</h2>
       <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button><br>
       <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button><br>
-      <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
+      <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button><br>
       <button onclick="buySeed('tulip')">Buy tulip Seed (600 coins)</button><br>
     </div>
 
@@ -202,7 +202,7 @@
       sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
       strawberry: { cost: 50, growTime: 60000, emoji: "🍓", class: "strawberry", sellPrice: 20, regrows: true },
       blueberry: { cost: 400, growTime: 120000, emoji: "🫐", class: "blueberry", sellPrice: 75, regrows: true },
-      tulip: { cost: 600, growTime: 50000, emoji: "🌷", class: "tulip", sellPrice: 1000, regrows: false },
+      tulip: { cost: 600, growTime: 50000, emoji: "🌷", class: "tulip", sellPrice: 1000, regrows: false }
     };
 
     function updateUI() {
