@@ -323,7 +323,7 @@
       const interval = setInterval(() => {
         let now = Date.now();
         let left = Math.max(0, Math.floor((readyAt - now) / 1000));
-        tooltip.textContent = left > 0 ? `${left}s remaining` : "Ready!";
+        plant.textContent = left > 0 ? `${left}s remaining` : "Ready!";
       }, 500);
 
         const grow = () => {
