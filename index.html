@@ -133,24 +133,27 @@
       <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button>
     </div>
 
-    <!-- Middle: Inventory & Use Fertilizer -->
+    <!-- Middle: Inventory -->
     <div id="inventory">
       <h2>Inventory</h2>
       <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
       <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
       <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
       <p>Fertilizer: <span id="fertilizerCount">0</span></p>
+      <p>Watering Can: <span id="wateringCount">0</span></p>
       <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
       <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
       <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
       <br><br>
       <button onclick="startFertilizerMode()">Use Fertilizer</button>
+      <button onclick="startWateringMode()">Use Watering Can</button>
     </div>
 
     <!-- Right: Gear Shop -->
     <div id="gearShop">
       <h2>Gear Shop</h2>
-      <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button>
+      <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button><br>
+      <button onclick="buyWateringCan()">Buy Watering Can (150 coins)</button>
     </div>
   </div>
 
@@ -160,12 +163,14 @@
   <script>
     let coins = 100;
     let fertilizerMode = false;
+    let wateringMode = false;
 
     let inventory = {
       sunflower: 0,
       strawberry: 0,
       blueberry: 0,
-      fertilizer: 0
+      fertilizer: 0,
+      wateringCan: 0
     };
 
     const plantData = {
@@ -201,6 +206,7 @@
       document.getElementById('strawberryCount').textContent = inventory.strawberry;
       document.getElementById('blueberryCount').textContent = inventory.blueberry;
       document.getElementById('fertilizerCount').textContent = inventory.fertilizer;
+      document.getElementById('wateringCount').textContent = inventory.wateringCan;
     }
 
     function buySeed(type) {
@@ -224,6 +230,16 @@
       }
     }
 
+    function buyWateringCan() {
+      if (coins >= 150) {
+        coins -= 150;
+        inventory.wateringCan++;
+        updateUI();
+      } else {
+        alert("Not enough coins!");
+      }
+    }
+
     function startFertilizerMode() {
       if (inventory.fertilizer <= 0) {
         alert("You don't have any fertilizer!");
@@ -231,6 +247,15 @@
       }
       fertilizerMode = true;
       alert("Fertilizer mode ON! Click a growing plant to apply.");
+    }
+
+    function startWateringMode() {
+      if (inventory.wateringCan <= 0) {
+        alert("You don't have any watering cans!");
+        return;
+      }
+      wateringMode = true;
+      alert("Watering Can mode ON! Click a growing plant to finish instantly.");
     }
 
     function plantSeed(type) {
@@ -262,14 +287,24 @@
         const interval = setInterval(updateTooltip, 500);
 
         plant.onclick = () => {
+          const now = Date.now();
+
           if (fertilizerMode && !fertilized && plant.textContent === "🌱") {
-            const remaining = readyAt - Date.now();
-            readyAt = Date.now() + remaining / 2;
+            const remaining = readyAt - now;
+            readyAt = now + remaining / 2;
             fertilized = true;
             plant.classList.add("fertilized");
             inventory.fertilizer--;
-            updateUI();
             fertilizerMode = false;
+            updateUI();
+            return;
+          }
+
+          if (wateringMode && plant.textContent === "🌱") {
+            readyAt = now;
+            inventory.wateringCan--;
+            wateringMode = false;
+            updateUI();
             return;
           }
 
@@ -289,7 +324,6 @@
 
         function growAgain() {
           plantedAt = Date.now();
-          growDuration = data.growTime;
           readyAt = plantedAt + growDuration;
           fertilized = false;
 
