@@ -177,13 +177,14 @@
   <div id="garden"></div>
 
   <div id="plantInfoPanel">
-    <h3>Plant Info</h3>
-    <p id="infoType"></p>
-    <p id="infoSell"></p>
-    <p id="infoTime"></p>
-    <button onclick="applyFertilizerToInfo()">Use Fertilizer</button>
-    <button onclick="applyWateringToInfo()">Use Watering Can</button>
-  </div>
+  <button id="closePlantInfo" style="position:absolute;top:8px;right:10px;font-size:18px;background:none;border:none;color:#77cc77;cursor:pointer;">✖</button>
+  <h3>Plant Info</h3>
+  <p id="infoType"></p>
+  <p id="infoSell"></p>
+  <p id="infoTime"></p>
+  <button onclick="applyFertilizerToInfo()">Use Fertilizer</button>
+  <button onclick="applyWateringToInfo()">Use Watering Can</button>
+</div>
 
   <script>
     let coins = 100;
@@ -197,7 +198,10 @@
       fertilizer: 0,
       wateringCan: 0
     };
-
+    document.getElementById("closePlantInfo").onclick = function() {
+  document.getElementById("plantInfoPanel").style.display = "none";
+  selectedPlant = null;
+};
     const plantData = {
       sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
       strawberry: { cost: 50, growTime: 60000, emoji: "🍓", class: "strawberry", sellPrice: 20, regrows: true },
