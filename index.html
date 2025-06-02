@@ -148,22 +148,15 @@
     #resetGameBtn:hover {
       background: #d32f2f;
     }
-    /* Garden name input styling */
-    #gardenNameInput {
-      font-size: 1em;
-      padding: 0.3em;
-      border-radius: 6px;
-      border: 1px solid #bbb;
-      margin-bottom: 0.5em;
-    }
   </style>
 </head>
 <body>
-  <div style="text-align:center; margin-top:1em;">
-    <input id="gardenNameInput" type="text" placeholder="Enter your garden name">
-    <button onclick="setGardenName()">Set Garden Name</button>
-  </div>
-  <h1 id="gardenTitleDisplay" style="text-align:center; margin-bottom:0.5em;">🌻 My Garden's Garden</h1>
+  <h1 id="gardenTitleDisplay"
+      style="text-align:center; margin-bottom:0.5em; cursor:pointer; background:#e0ffe0; border-radius:10px; display:inline-block; padding:0.3em 1em; border:2px solid #77cc77; user-select:none; margin-left:50%; transform:translateX(-50%);"
+      onclick="promptGardenName()">
+    🌻 My Garden's Garden
+  </h1>
+  <button id="resetGameBtn">Reset Game</button>
   <div id="coinsDisplay">Coins: <span id="coins">100</span></div>
 
   <div id="main">
@@ -285,9 +278,10 @@
       wateringCan: 0
     };
 
-    function setGardenName() {
-      const input = document.getElementById("gardenNameInput");
-      let name = input.value.trim();
+    function promptGardenName() {
+      let name = prompt("Enter your garden name:", gardenName);
+      if (name === null) return;
+      name = name.trim();
       if (name.length === 0) name = "My Garden";
       gardenName = name;
       updateGardenTitle();
