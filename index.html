@@ -68,6 +68,11 @@
     .peach { background: radial-gradient(circle, rgba(255, 153, 0, 0.296), rgba(255, 179, 0, 0.882)); }
     .papaya { background: radial-gradient(circle, #ffe066, #ffb347); }
     .pineapple { background: radial-gradient(circle, #ffe066, #ffe066 60%, #c2b900 100%); }
+    .grape { background: radial-gradient(circle, #b388ff, #6a1b9a); }
+    .apple { background: radial-gradient(circle, #b2ff59, #388e3c); }
+    .pear { background: radial-gradient(circle, #e0ffb3, #b2c248); }
+    .orange { background: radial-gradient(circle, #ffe0b2, #ff9800); }
+    .blackberry { background: radial-gradient(circle, #d1b3ff, #2d0036); }
     .fertilized { animation: glow 1s infinite alternate; }
     @keyframes glow {
       from { box-shadow: 0 0 5px 2px #ffffaa; }
@@ -126,7 +131,6 @@
       width: 350px;
       margin: 30px auto 0 auto;
     }
-    /* Reset button top left */
     #resetGameBtn {
       position: fixed;
       top: 20px;
@@ -163,6 +167,11 @@
       <button onclick="buySeed('Peach')">Buy Peach Seed (1250 coins)</button><br>
       <button onclick="buySeed('Papaya')">Buy Papaya Seed (1500 coins)</button><br>
       <button onclick="buySeed('Pineapple')">Buy Pineapple Seed (2000 coins)</button><br>
+      <button onclick="buySeed('grape')">Buy Grape Seed (2500 coins)</button><br>
+      <button onclick="buySeed('apple')">Buy Apple Seed (3000 coins)</button><br>
+      <button onclick="buySeed('pear')">Buy Pear Seed (3500 coins)</button><br>
+      <button onclick="buySeed('orange')">Buy Orange Seed (4500 coins)</button><br>
+      <button onclick="buySeed('blackberry')">Buy Blackberry Seed (5000 coins)</button><br>
     </div>
     <div id="inventory">
       <h2>Inventory</h2>
@@ -175,6 +184,11 @@
       <p>Peach Seeds: <span id="PeachCount">0</span></p>
       <p>Papaya Seeds: <span id="PapayaCount">0</span></p>
       <p>Pineapple Seeds: <span id="PineappleCount">0</span></p>
+      <p>Grape Seeds: <span id="grapeCount">0</span></p>
+      <p>Apple Seeds: <span id="appleCount">0</span></p>
+      <p>Pear Seeds: <span id="pearCount">0</span></p>
+      <p>Orange Seeds: <span id="orangeCount">0</span></p>
+      <p>Blackberry Seeds: <span id="blackberryCount">0</span></p>
       <p>Fertilizer: <span id="fertilizerCount">0</span></p>
       <p>Watering Can: <span id="wateringCount">0</span></p>
       <p>Trowel Uses: <span id="trowelCount">0</span></p>
@@ -187,6 +201,11 @@
       <button onclick="plantSeed('Peach')">Plant Peach 🌱</button>
       <button onclick="plantSeed('Papaya')">Plant Papaya 🌱</button>
       <button onclick="plantSeed('Pineapple')">Plant Pineapple 🌱</button>
+      <button onclick="plantSeed('grape')">Plant Grape 🌱</button>
+      <button onclick="plantSeed('apple')">Plant Apple 🌱</button>
+      <button onclick="plantSeed('pear')">Plant Pear 🌱</button>
+      <button onclick="plantSeed('orange')">Plant Orange 🌱</button>
+      <button onclick="plantSeed('blackberry')">Plant Blackberry 🌱</button>
     </div>
     <div id="gearShop">
       <h2>Gear Shop</h2>
@@ -245,6 +264,11 @@
       Peach: 0,
       Papaya: 0,
       Pineapple: 0,
+      grape: 0,
+      apple: 0,
+      pear: 0,
+      orange: 0,
+      blackberry: 0,
       fertilizer: 0,
       wateringCan: 0
     };
@@ -255,7 +279,6 @@
       selectedPlant = null;
     };
 
-    // Toggle Garden Info panel
     function toggleGardenInfo() {
       const panel = document.getElementById("gardenInfoPanel");
       if (panel.style.display === "block") {
@@ -266,7 +289,6 @@
       }
     }
 
-    // Make the "Garden" title open/close the info panel
     document.getElementById("gardenTitle").onclick = toggleGardenInfo;
 
     const plantData = {
@@ -278,7 +300,12 @@
       Potato: { cost: 1000, growTime: 200000, emoji: "🥔", class: "potato", sellPrice: 350, regrows: true },
       Peach: { cost: 1250, growTime: 100000, emoji: "🍑", class: "peach", sellPrice: 500, regrows: true },
       Papaya: { cost: 1500, growTime: 180000, emoji: "🥭", class: "papaya", sellPrice: 750, regrows: true },
-      Pineapple: { cost: 2000, growTime: 220000, emoji: "🍍", class: "pineapple", sellPrice: 900, regrows: true }
+      Pineapple: { cost: 2000, growTime: 220000, emoji: "🍍", class: "pineapple", sellPrice: 900, regrows: true },
+      grape: { cost: 2500, growTime: 180000, emoji: "🍇", class: "grape", sellPrice: 1000, regrows: true },
+      apple: { cost: 3000, growTime: 200000, emoji: "🍏", class: "apple", sellPrice: 1250, regrows: true },
+      pear: { cost: 3500, growTime: 220000, emoji: "🍐", class: "pear", sellPrice: 1500, regrows: true },
+      orange: { cost: 4500, growTime: 240000, emoji: "🍊", class: "orange", sellPrice: 1750, regrows: true },
+      blackberry: { cost: 5000, growTime: 260000, emoji: "🫐", class: "blackberry", sellPrice: 2000, regrows: true }
     };
 
     function updateUI() {
@@ -292,6 +319,11 @@
       document.getElementById('PeachCount').textContent = inventory.Peach;
       document.getElementById('PapayaCount').textContent = inventory.Papaya;
       document.getElementById('PineappleCount').textContent = inventory.Pineapple;
+      document.getElementById('grapeCount').textContent = inventory.grape;
+      document.getElementById('appleCount').textContent = inventory.apple;
+      document.getElementById('pearCount').textContent = inventory.pear;
+      document.getElementById('orangeCount').textContent = inventory.orange;
+      document.getElementById('blackberryCount').textContent = inventory.blackberry;
       document.getElementById('fertilizerCount').textContent = inventory.fertilizer;
       document.getElementById('wateringCount').textContent = inventory.wateringCan;
       document.getElementById('trowelCount').textContent = trowelUses;
@@ -533,7 +565,7 @@
     function getPlantCounts() {
       const garden = document.getElementById("garden");
       const plants = Array.from(garden.getElementsByClassName("plant"));
-      const counts = { sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0, Potato: 0, Peach: 0, Papaya: 0, Pineapple: 0 };
+      const counts = { sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0, Potato: 0, Peach: 0, Papaya: 0, Pineapple: 0, grape: 0, apple: 0, pear: 0, orange: 0, blackberry: 0 };
       plants.forEach(plant => {
         if (counts.hasOwnProperty(plant.dataset.type)) counts[plant.dataset.type]++;
       });
@@ -554,6 +586,11 @@
           <li>Peach: ${counts.Peach}</li>
           <li>Papaya: ${counts.Papaya}</li>
           <li>Pineapple: ${counts.Pineapple}</li>
+          <li>Grape: ${counts.grape}</li>
+          <li>Apple: ${counts.apple}</li>
+          <li>Pear: ${counts.pear}</li>
+          <li>Orange: ${counts.orange}</li>
+          <li>Blackberry: ${counts.blackberry}</li>
         </ul>
       `;
     }
@@ -578,12 +615,16 @@
         <li>Peach: ${counts.Peach}</li>
         <li>Papaya: ${counts.Papaya}</li>
         <li>Pineapple: ${counts.Pineapple}</li>
+        <li>Grape: ${counts.grape}</li>
+        <li>Apple: ${counts.apple}</li>
+        <li>Pear: ${counts.pear}</li>
+        <li>Orange: ${counts.orange}</li>
+        <li>Blackberry: ${counts.blackberry}</li>
       `;
     }
 
     setInterval(updateGardenInfo, 1000);
 
-    // --- Local Storage Save/Load ---
     function saveGame() {
       const garden = document.getElementById("garden");
       const plants = Array.from(garden.getElementsByClassName("plant")).map(plant => ({
@@ -663,7 +704,6 @@
       }
     }
 
-    // --- Reset Button Logic ---
     document.getElementById("resetGameBtn").onclick = function() {
       if (confirm("Are you sure you want to reset your garden and start over?")) {
         localStorage.removeItem("garden_game_save");
@@ -681,6 +721,11 @@
           Peach: 0,
           Papaya: 0,
           Pineapple: 0,
+          grape: 0,
+          apple: 0,
+          pear: 0,
+          orange: 0,
+          blackberry: 0,
           fertilizer: 0,
           wateringCan: 0
         });
