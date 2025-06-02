@@ -273,7 +273,7 @@
       sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
       strawberry: { cost: 50, growTime: 60000, emoji: "🍓", class: "strawberry", sellPrice: 20, regrows: true },
       blueberry: { cost: 400, growTime: 120000, emoji: "🫐", class: "blueberry", sellPrice: 75, regrows: true },
-      Tulip: { cost: 600, growTime: 50000, emoji: "🌷", class: "Tulip", sellPrice: 750, regrows: false },
+      Tulip: { cost: 600, growTime: 50000, emoji: "🌷", class: "tulip", sellPrice: 750, regrows: false },
       Tomato: { cost: 800, growTime: 240000, emoji: "🍅", class: "tomato", sellPrice: 200, regrows: true },
       Potato: { cost: 1000, growTime: 200000, emoji: "🥔", class: "potato", sellPrice: 350, regrows: true },
       Peach: { cost: 1250, growTime: 100000, emoji: "🍑", class: "peach", sellPrice: 500, regrows: true },
@@ -333,21 +333,6 @@
       updateUI();
       updateGardenInfo();
     }
-
-    document.getElementById("garden").addEventListener("click", (e) => {
-      if (e.target.classList.contains("plant")) {
-        const plant = e.target;
-        if (plant.dataset.ready === "true") {
-          coins += plantData[plant.dataset.type].sellPrice;
-          saveGame();
-          updateUI();
-          removePlant(plant);
-        } else {
-          selectedPlant = { el: plant, type: plant.dataset.type };
-          showPlantInfoPanel(plant.dataset.type, plantData[plant.dataset.type].sellPrice, plantData[plant.dataset.type].growTime, plant);
-        }
-      }
-    });
 
     function buyFertilizer() {
       if (coins >= 50) {
@@ -509,7 +494,7 @@
       plants.forEach(plant => {
         const type = plant.dataset.type;
         if (plant.dataset.ready === "true") {
-          coins += plantData[type].sellPrice * 2;
+          coins += plantData[type].sellPrice;
           plant.textContent = "🌱";
           plant.classList.remove(plantData[type].class, "flower", "fertilized");
           plant.dataset.ready = "false";
