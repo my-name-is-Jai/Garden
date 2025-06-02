@@ -187,20 +187,51 @@
     #petShopBox, #researchCenterBox {
       min-height: 120px;
     }
+    /* --- Improved Pet Shop --- */
+    #petEggsDisplay {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content: center;
+      margin-top: 10px;
+    }
     .pet-card {
-      border: 2px solid #aaa;
-      border-radius: 8px;
-      padding: 10px;
-      width: 120px;
-      background: #f5fff5;
+      border: 2px solid #77cc77;
+      border-radius: 14px;
+      padding: 18px 12px 12px 12px;
+      width: 140px;
+      background: linear-gradient(135deg, #f5fff5 70%, #e0ffe0 100%);
       cursor: pointer;
-      display: inline-block;
-      margin: 5px;
+      margin: 0;
       text-align: center;
+      box-shadow: 0 2px 8px #b6e2b6;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.2s;
+      font-size: 1.2em;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .pet-card:hover {
-      border-color: #77cc77;
+      border-color: #388e3c;
       background: #eaffea;
+      box-shadow: 0 4px 16px #77cc77;
+      transform: translateY(-4px) scale(1.04);
+    }
+    .pet-card .pet-emoji {
+      font-size: 2.5em;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .pet-card .pet-name {
+      font-weight: bold;
+      color: #388e3c;
+      margin-bottom: 4px;
+    }
+    .pet-card .pet-price {
+      color: #888;
+      font-size: 0.95em;
     }
   </style>
 </head>
@@ -347,6 +378,211 @@
       coconut: 0, bamboo: 0,
       fertilizer: 0, wateringCan: 0
     };
+
+    // --- Bunny Research Center with Stocking System ---
+    const carrotTypes = [
+      { name: "Classic Orange", price: 5000, sell: 2000 },
+      { name: "Purple Haze", price: 6000, sell: 2500 },
+      { name: "White Satin", price: 7000, sell: 3000 },
+      { name: "Atomic Red", price: 8000, sell: 3500 },
+      { name: "Yellowstone", price: 9000, sell: 4000 },
+      { name: "Cosmic Purple", price: 10000, sell: 4500 },
+      { name: "Lunar White", price: 11000, sell: 5000 },
+      { name: "Parisian Market", price: 12000, sell: 5500 }
+      // ...add more as needed
+    ];
+
+    let carrotStock = {};
+    let carrotRestockTime = 0;
+    const CARROT_MAX_STOCK = 3;
+    const CARROT_RESTOCK_INTERVAL = 10 * 60 * 1000; // 10 minutes
+
+    function saveCarrotStock() {
+      localStorage.setItem("carrot_stock", JSON.stringify(carrotStock));
+      localStorage.setItem("carrot_restock_time", carrotRestockTime);
+    }
+    function loadCarrotStock() {
+      carrotStock = JSON.parse(localStorage.getItem("carrot_stock") || "{}");
+      carrotRestockTime = parseInt(localStorage.getItem("carrot_restock_time") || "0", 10);
+      carrotTypes.forEach(type => {
+        const key = type.name.replace(/[^a-zA-Z0-9]/g, "_");
+        if (typeof carrotStock[key] !== "number") carrotStock[key] = CARROT_MAX_STOCK;
+      });
+    }
+    function restockCarrots(force) {
+      const now = Date.now();
+      if (force || now >= carrotRestockTime) {
+        carrotTypes.forEach(type => {
+          const key = type.name.replace(/[^a-zA-Z0-9]/g, "_");
+          carrotStock[key] = CARROT_MAX_STOCK;
+        });
+        carrotRestockTime = now + CARROT_RESTOCK_INTERVAL;
+        saveCarrotStock();
+      }
+    }
+    function getCarrotRestockCountdown() {
+      const ms = Math.max(0, carrotRestockTime - Date.now());
+      const min = Math.floor(ms / 60000);
+      const sec = Math.floor((ms % 60000) / 1000);
+      return `${min}:${sec.toString().padStart(2, "0")}`;
+    }
+
+    function openCarrotResearch() {
+      restockCarrots();
+      let html = "<ul style='list-style:none;padding:0;'>";
+      carrotTypes.forEach((type, idx) => {
+        const key = type.name.replace(/[^a-zA-Z0-9]/g, "_");
+        const stock = carrotStock[key];
+        html += `<li style="margin-bottom:8px;">
+          <b>${type.name}</b> 
+          <span style="color:#888;">- ${type.price} coins</span>
+          <span style="color:#388e3c;margin-left:8px;">Stock: ${stock}</span>
+          <button style="margin-left:10px;padding:2px 10px;font-size:14px;" 
+            onclick="buyCarrotType(${idx})" ${stock <= 0 ? "disabled" : ""}>Buy</button>
+        </li>`;
+      });
+      html += "</ul>";
+      html += `<div style="margin-top:10px;color:#888;">Restocks in: <span id="carrotRestockTimer">${getCarrotRestockCountdown()}</span></div>`;
+      document.getElementById("carrotListDisplay").innerHTML = html;
+      document.getElementById("carrotListDisplay").style.display = "block";
+      window._carrotTypes = carrotTypes;
+      updateCarrotRestockTimer();
+    }
+
+    function buyCarrotType(idx) {
+      const carrot = window._carrotTypes[idx];
+      const key = carrot.name.replace(/[^a-zA-Z0-9]/g, "_");
+      if (carrotStock[key] <= 0) {
+        alert("Out of stock! Wait for restock.");
+        return;
+      }
+      if (coins < carrot.price) {
+        alert("Not enough coins!");
+        return;
+      }
+      coins -= carrot.price;
+      carrotStock[key]--;
+      const invKey = "carrot_" + key;
+      if (!inventory[invKey]) inventory[invKey] = 0;
+      inventory[invKey]++;
+      updateUI();
+      alert(`You bought a ${carrot.name} carrot seed!`);
+      saveCarrotStock();
+      updateCarrotInventoryUI();
+      openCarrotResearch(); // Refresh UI
+    }
+
+    function updateCarrotInventoryUI() {
+      let carrotDiv = document.getElementById("carrotInventory");
+      if (!carrotDiv) {
+        carrotDiv = document.createElement("div");
+        carrotDiv.id = "carrotInventory";
+        document.getElementById("inventory").appendChild(carrotDiv);
+      }
+      let html = "<h3>Carrot Seeds</h3>";
+      let found = false;
+      for (let key in inventory) {
+        if (key.startsWith("carrot_") && inventory[key] > 0) {
+          found = true;
+          const carrotName = key.replace("carrot_", "").replace(/_/g, " ");
+          html += `<div>
+            ${carrotName.charAt(0).toUpperCase() + carrotName.slice(1)}: <span>${inventory[key]}</span>
+            <button onclick="plantCarrotSeed('${key}')">Plant 🌱</button>
+          </div>`;
+        }
+      }
+      if (!found) html += "<div>No carrot seeds yet.</div>";
+      carrotDiv.innerHTML = html;
+    }
+
+    function plantCarrotSeed(invKey) {
+      if (inventory[invKey] <= 0) return alert("No seeds!");
+      inventory[invKey]--;
+      const carrotName = invKey.replace("carrot_", "").replace(/_/g, " ");
+      const carrot = carrotTypes.find(c => c.name.replace(/[^a-zA-Z0-9]/g, "_") === invKey.replace("carrot_", ""));
+      const growTime = 120000; // 2 minutes
+      const emoji = "🥕";
+      const sellPrice = carrot ? carrot.sell : 2000;
+
+      const plant = document.createElement("div");
+      plant.className = "plant";
+      plant.dataset.type = invKey;
+      plant.dataset.ready = "false";
+      plant.dataset.fertilized = "false";
+      plant.dataset.regrow = "true";
+
+      const tooltip = document.createElement("div");
+      tooltip.className = "tooltip";
+      plant.appendChild(tooltip);
+
+      document.getElementById("garden").appendChild(plant);
+
+      let readyAt = Date.now() + growTime;
+      const interval = setInterval(() => {
+        const left = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
+        tooltip.textContent = left > 0 ? `${left}s remaining` : "Ready!";
+      }, 500);
+
+      const grow = () => {
+        plant.textContent = emoji;
+        plant.classList.add("flower");
+        plant.dataset.ready = "true";
+        clearInterval(interval);
+        updateUI();
+      };
+      setTimeout(grow, growTime);
+
+      plant.onclick = () => {
+        if (plant.dataset.ready === "true") {
+          coins += sellPrice;
+          alert(`You harvested a ${carrotName} carrot for ${sellPrice} coins!`);
+          plant.textContent = "🌱";
+          plant.classList.remove("flower", "fertilized");
+          plant.dataset.ready = "false";
+          let regrowAt = Date.now() + growTime;
+          const regrowInterval = setInterval(() => {
+            const left = Math.max(0, Math.floor((regrowAt - Date.now()) / 1000));
+            tooltip.textContent = left > 0 ? `${left}s remaining` : "Ready!";
+          }, 500);
+          setTimeout(() => {
+            plant.textContent = emoji;
+            plant.classList.add("flower");
+            plant.dataset.ready = "true";
+            clearInterval(regrowInterval);
+            updateUI();
+          }, growTime);
+          updateUI();
+          updateCarrotInventoryUI();
+        } else {
+          alert(`${carrotName} carrot is still growing!`);
+        }
+      };
+
+      updateCarrotInventoryUI();
+      updateUI();
+    }
+
+    function updateCarrotRestockTimer() {
+      const timerEl = document.getElementById("carrotRestockTimer");
+      if (!timerEl) return;
+      timerEl.textContent = getCarrotRestockCountdown();
+      if (carrotRestockTime - Date.now() <= 0) {
+        restockCarrots(true);
+        openCarrotResearch();
+      } else {
+        setTimeout(updateCarrotRestockTimer, 1000);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      loadCarrotStock();
+      restockCarrots();
+    });
+    document.getElementById("resetGameBtn").addEventListener("click", function() {
+      carrotRestockTime = 0;
+      carrotStock = {};
+      saveCarrotStock();
+    });
 
     // --- Plant Definitions ---
     const plantData = {
@@ -516,6 +752,7 @@
       }
       document.getElementById('trowelCount').textContent = trowelUses;
       document.getElementById('harvestAllUses').textContent = "Harvest All Uses: " + harvestAllUses;
+      updateCarrotInventoryUI();
     }
 
     function toggleGardenInfo() {
@@ -809,7 +1046,13 @@
       ];
       let html = "";
       pets.forEach(pet => {
-        html += `<div class="pet-card" onclick="buyPet('${pet.name}',${pet.price})">${pet.emoji}<br>${pet.name}<br>${pet.price} coins</div>`;
+        html += `
+          <div class="pet-card" onclick="buyPet('${pet.name}',${pet.price})">
+            <span class="pet-emoji">${pet.emoji}</span>
+            <span class="pet-name">${pet.name}</span>
+            <span class="pet-price">${pet.price} coins</span>
+          </div>
+        `;
       });
       document.getElementById("petEggsDisplay").innerHTML = html;
     }
@@ -823,26 +1066,6 @@
       updateUI();
     }
     updatePetShop();
-
-    // --- Bunny Research Center (demo logic) ---
-    function openCarrotResearch() {
-      const carrotTypes = [
-        "Classic Orange", "Purple Haze", "White Satin", "Atomic Red", "Yellowstone",
-        "Cosmic Purple", "Lunar White", "Parisian Market", "Little Finger", "Danvers",
-        "Chantenay", "Nantes", "Kuroda", "Red Samurai", "Solar Yellow", "Black Nebula",
-        "Snowman", "Thumbelina", "Oxheart", "Scarlet Nantes", "Berlicum", "Deep Purple",
-        "Purple Dragon", "White Belgian", "St. Valery", "Parisienne", "Red Cored Chantenay",
-        "Purple Sun", "Yellow Sun", "Cosmic Red", "Purple Elite", "White Gem", "Red Core",
-        "Yellow Baby", "Purple Baby", "White Baby", "Red Baby", "Yellow Giant", "Purple Giant",
-        "White Giant", "Red Giant", "Yellow Mini", "Purple Mini", "White Mini", "Red Mini",
-        "Yellow Sweet", "Purple Sweet", "White Sweet", "Red Sweet", "Rainbow"
-      ];
-      let html = "<ul>";
-      carrotTypes.forEach(type => html += `<li>${type}</li>`);
-      html += "</ul>";
-      document.getElementById("carrotListDisplay").innerHTML = html;
-      document.getElementById("carrotListDisplay").style.display = "block";
-    }
 
     // --- Save/Load ---
     function saveGame() {
@@ -957,6 +1180,9 @@
           fertilizer: 0, wateringCan: 0
         });
         document.getElementById("garden").innerHTML = "";
+        carrotRestockTime = 0;
+        carrotStock = {};
+        saveCarrotStock();
         updateUI();
         updateGardenInfo();
         promptGardenName();
