@@ -167,6 +167,20 @@
     #achievementsBtn:hover {
       background: #ffe066;
     }
+    #achievementsModal {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 320px;
+      max-width: 90vw;
+      background: #fffbe6;
+      border: 2px solid #ffd700;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px #888;
+      padding: 1.2em 1.5em;
+      z-index: 2000;
+    }
   </style>
 </head>
 <body>
@@ -278,6 +292,14 @@
     <button id="trowelRemoveBtn" style="display:none;">Use Trowel to Remove Plant</button>
   </div>
 
+  <div id="achievementsModal">
+    <h3 style="margin-top:0;">Achievements</h3>
+    <ul id="achievementsList" style="padding-left:20px;margin-bottom:1em;"></ul>
+    <div style="text-align:center;">
+      <button onclick="document.getElementById('achievementsModal').style.display='none'">Close</button>
+    </div>
+  </div>
+
   <script>
     let coins = 100;
     let selectedPlant = null;
@@ -307,6 +329,49 @@
       fertilizer: 0,
       wateringCan: 0
     };
+
+    // Achievements system
+    const fruitTypes = [
+      "sunflower", "strawberry", "blueberry", "Tulip", "Tomato", "Potato", "Peach", "Papaya", "Pineapple",
+      "grape", "apple", "pear", "orange", "blackberry", "coconut", "bamboo"
+    ];
+    let achievements = {};
+    function saveAchievements() {
+      localStorage.setItem("garden_achievements", JSON.stringify(achievements));
+    }
+    function loadAchievements() {
+      const data = localStorage.getItem("garden_achievements");
+      achievements = data ? JSON.parse(data) : {};
+    }
+    function unlockAchievement(key) {
+      if (!achievements[key]) {
+        achievements[key] = true;
+        saveAchievements();
+        showAchievementsModal();
+      }
+    }
+    function showAchievementsModal() {
+      const list = document.getElementById("achievementsList");
+      list.innerHTML = "";
+      fruitTypes.forEach(type => {
+        const key = "first_" + type;
+        const nice = type.charAt(0).toUpperCase() + type.slice(1);
+        const unlocked = achievements[key];
+        const li = document.createElement("li");
+        li.textContent = `First ${nice}`;
+        li.style.color = unlocked ? "#388e3c" : "#aaa";
+        if (unlocked) li.innerHTML = "🏆 " + li.innerHTML;
+        list.appendChild(li);
+      });
+      document.getElementById("achievementsModal").style.display = "block";
+    }
+    document.getElementById("achievementsBtn").onclick = showAchievementsModal;
+    function checkFirstFruit(type) {
+      const key = "first_" + type;
+      if (!achievements[key]) {
+        unlockAchievement(key);
+      }
+    }
 
     // Always prompt for a new name when the title is clicked
     function promptGardenName() {
@@ -345,10 +410,6 @@
     }
 
     document.getElementById("gardenTitle").onclick = toggleGardenInfo;
-
-    document.getElementById("achievementsBtn").onclick = function() {
-      alert("Achievements coming soon!");
-    };
 
     const plantData = {
       sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
@@ -490,6 +551,7 @@
         if (plant.dataset.ready === "true") {
           coins += p.sellPrice;
           totalCoinsEarned += p.sellPrice;
+          checkFirstFruit(type);
           saveGame();
           updateUI();
           if (p.regrows) {
@@ -592,6 +654,7 @@
         if (plant.dataset.ready === "true") {
           coins += plantData[type].sellPrice;
           totalCoinsEarned += plantData[type].sellPrice;
+          checkFirstFruit(type);
           plant.textContent = "🌱";
           plant.classList.remove(plantData[type].class, "flower", "fertilized");
           plant.dataset.ready = "false";
@@ -755,6 +818,7 @@
             if (plant.dataset.ready === "true") {
               coins += plantData[p.type].sellPrice;
               totalCoinsEarned += plantData[p.type].sellPrice;
+              checkFirstFruit(p.type);
               saveGame();
               updateUI();
               if (plantData[p.type].regrows) {
@@ -823,6 +887,7 @@
     };
 
     window.addEventListener("DOMContentLoaded", function() {
+      loadAchievements();
       loadGame();
       updateGardenTitle();
       if (!gardenName || gardenName === "Please choose a name" || gardenName === "My Garden") {
