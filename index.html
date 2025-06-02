@@ -1066,6 +1066,53 @@
       updateUI();
     }
     updatePetShop();
+    const petBuffs = {
+  Bunny: {
+    name: "Bunny",
+    desc: "🌱 Plants grow 25% faster!",
+    apply: () => { window.petBuff = { growMultiplier: 0.75 }; }
+  },
+  Chick: {
+    name: "Chick",
+    desc: "💰 +20% coins from harvesting!",
+    apply: () => { window.petBuff = { coinMultiplier: 1.2 }; }
+  },
+  Hamster: {
+    name: "Hamster",
+    desc: "🛒 Seeds cost 20% less!",
+    apply: () => { window.petBuff = { seedDiscount: 0.8 }; }
+  }
+};
+let activePetBuff = null;
+
+function buyPet(name, price) {
+  if (coins < price) {
+    alert("Not enough coins!");
+    return;
+  }
+  coins -= price;
+  activePetBuff = name;
+  petBuffs[name].apply();
+  alert(`You bought a ${name}! Buff activated: ${petBuffs[name].desc}`);
+  updateUI();
+  updatePetBuffDisplay();
+}
+
+// Show active pet buff in UI
+function updatePetBuffDisplay() {
+  let buffDiv = document.getElementById("petBuffDisplay");
+  if (!buffDiv) {
+    buffDiv = document.createElement("div");
+    buffDiv.id = "petBuffDisplay";
+    document.getElementById("petShopBox").appendChild(buffDiv);
+  }
+  if (activePetBuff) {
+    buffDiv.innerHTML = `<b>Active Pet Buff:</b> ${petBuffs[activePetBuff].desc}`;
+  } else {
+    buffDiv.innerHTML = `<b>No pet buff active.</b>`;
+  }
+}
+updatePetBuffDisplay();
 
     // --- Save/Load ---
     function saveGame() {
