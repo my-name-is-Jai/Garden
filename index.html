@@ -150,6 +150,23 @@
     #resetGameBtn:hover {
       background: #d32f2f;
     }
+    #achievementsBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ffd700;
+      color: #444;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7em 1.2em;
+      font-size: 16px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px #888;
+      cursor: pointer;
+    }
+    #achievementsBtn:hover {
+      background: #ffe066;
+    }
   </style>
 </head>
 <body>
@@ -159,6 +176,7 @@
     🌻 Please choose a name's Garden
   </h1>
   <button id="resetGameBtn">Reset Game</button>
+  <button id="achievementsBtn">Achievements</button>
   <div id="coinsDisplay">Coins: <span id="coins">100</span></div>
 
   <div id="main">
@@ -327,6 +345,10 @@
     }
 
     document.getElementById("gardenTitle").onclick = toggleGardenInfo;
+
+    document.getElementById("achievementsBtn").onclick = function() {
+      alert("Achievements coming soon!");
+    };
 
     const plantData = {
       sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
