@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF8" />
-  <title>My Garden Game</title>
+  <meta charset="UTF-8" />
+  <title>Ultimate Garden Game</title>
   <style>
     body {
       font-family: sans-serif;
@@ -23,12 +23,14 @@
       display: flex;
       justify-content: space-between;
       padding: 1rem;
+      flex-wrap: wrap;
     }
-    #shop, #inventory, #gearShop {
+    #shop, #inventory, #gearShop, #petShopBox, #researchCenterBox {
       padding: 1rem;
       border-radius: 10px;
       background: #e0ffe0;
       width: 30%;
+      margin: 10px auto;
     }
     #gearShop {
       text-align: right;
@@ -62,21 +64,22 @@
     .sunflower { background: radial-gradient(circle, yellow, orange); }
     .strawberry { background: radial-gradient(circle, pink, red); }
     .blueberry { background: radial-gradient(circle, lightblue, darkblue); }
-    .tulip { background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 0, 136)); }
+    .tulip, .Tulip { background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 0, 136)); }
     .tomato { background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 230, 0)); }
-    .potato { background: radial-gradient(circle, rgba(255, 204, 0, 0.296), rgb(255, 191, 0)); }
-    .peach { background: radial-gradient(circle, rgba(255, 153, 0, 0.296), rgba(255, 179, 0, 0.882)); }
-    .papaya { background: radial-gradient(circle, #ffe066, #ffb347); }
-    .pineapple { background: radial-gradient(circle, #ffe066, #ffe066 60%, #c2b900 100%); }
+    .potato, .Potato { background: radial-gradient(circle, rgba(255, 204, 0, 0.296), rgb(255, 191, 0)); }
+    .peach, .Peach { background: radial-gradient(circle, rgba(255, 153, 0, 0.296), rgba(255, 179, 0, 0.882)); }
+    .papaya, .Papaya { background: radial-gradient(circle, #ffe066, #ffb347); }
+    .pineapple, .Pineapple { background: radial-gradient(circle, #ffe066, #ffe066 60%, #c2b900 100%); }
     .grape { background: radial-gradient(circle, #b388ff, #6a1b9a); }
     .apple { background: radial-gradient(circle, #b2ff59, #388e3c); }
     .pear { background: radial-gradient(circle, #e0ffb3, #b2c248); }
     .orange { background: radial-gradient(circle, #ffe0b2, #ff9800); }
     .blackberry { background: radial-gradient(circle, #d1b3ff, #2d0036); }
     .fertilized { animation: glow 1s infinite alternate; }
+    .mutated { animation: glow 1.2s infinite alternate; }
     @keyframes glow {
-      from { box-shadow: 0 0 5px 2px #ffffaa; }
-      to { box-shadow: 0 0 10px 5px #ffff55; }
+      from { box-shadow: 0 0 5px 2px gold; }
+      to   { box-shadow: 0 0 12px 6px orange; }
     }
     button {
       margin: 0.3rem;
@@ -148,6 +151,24 @@
     #resetGameBtn:hover {
       background: #d32f2f;
     }
+    #petShopBox, #researchCenterBox {
+      min-height: 120px;
+    }
+    .pet-card {
+      border: 2px solid #aaa;
+      border-radius: 8px;
+      padding: 10px;
+      width: 120px;
+      background: #f5fff5;
+      cursor: pointer;
+      display: inline-block;
+      margin: 5px;
+      text-align: center;
+    }
+    .pet-card:hover {
+      border-color: #77cc77;
+      background: #eaffea;
+    }
   </style>
 </head>
 <body>
@@ -218,6 +239,16 @@
       <button onclick="buyTrowel()">Buy Trowel (200 coins, 5 uses)</button><br>
       <button onclick="buyHarvestAll()">Buy Harvest All (500 coins)</button>
     </div>
+    <div id="petShopBox">
+      <h2>🐾 Pet Shop</h2>
+      <div id="petEggsDisplay"></div>
+      <p><em>Restocks in: <span id="petRestockTimer">15:00</span></em></p>
+    </div>
+    <div id="researchCenterBox">
+      <h2>🥕 Bunny Research Center</h2>
+      <button onclick="openCarrotResearch()">View 50 Carrot Types</button>
+      <div id="carrotListDisplay" style="display:none;margin-top:10px;"></div>
+    </div>
   </div>
 
   <h2 id="gardenTitle" style="text-align:center; cursor:pointer; color:#388e3c; user-select:none;">Garden</h2>
@@ -252,6 +283,7 @@
   </div>
 
   <script>
+    // --- Game State ---
     let coins = 100;
     let selectedPlant = null;
     let trowelUses = 0;
@@ -260,62 +292,12 @@
     let gardenName = "Please choose a name";
 
     const inventory = {
-      sunflower: 0,
-      strawberry: 0,
-      blueberry: 0,
-      Tulip: 0,
-      Tomato: 0,
-      Potato: 0,
-      Peach: 0,
-      Papaya: 0,
-      Pineapple: 0,
-      grape: 0,
-      apple: 0,
-      pear: 0,
-      orange: 0,
-      blackberry: 0,
-      fertilizer: 0,
-      wateringCan: 0
+      sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0,
+      Potato: 0, Peach: 0, Papaya: 0, Pineapple: 0, grape: 0, apple: 0, pear: 0, orange: 0, blackberry: 0,
+      fertilizer: 0, wateringCan: 0
     };
 
-    // Always prompt for a new name when the title is clicked
-    function promptGardenName() {
-      let name = "";
-      while (!name) {
-        name = prompt("Please choose a name for your garden:", gardenName === "Please choose a name" ? "" : gardenName);
-        if (name === null) { // User cancelled
-          name = gardenName || "My Garden";
-          break;
-        }
-        name = name.trim();
-      }
-      gardenName = name;
-      updateGardenTitle();
-      saveGame();
-    }
-
-    function updateGardenTitle() {
-      document.getElementById("gardenTitleDisplay").textContent = `🌻 ${gardenName}'s Garden`;
-    }
-
-    document.getElementById("closePlantInfo").onclick = function() {
-      document.getElementById("plantInfoPanel").style.display = "none";
-      document.getElementById("trowelRemoveBtn").style.display = "none";
-      selectedPlant = null;
-    };
-
-    function toggleGardenInfo() {
-      const panel = document.getElementById("gardenInfoPanel");
-      if (panel.style.display === "block") {
-        panel.style.display = "none";
-      } else {
-        updateGardenInfo();
-        panel.style.display = "block";
-      }
-    }
-
-    document.getElementById("gardenTitle").onclick = toggleGardenInfo;
-
+    // --- Plant Definitions ---
     const plantData = {
       sunflower: { cost: 10, growTime: 25000, emoji: "🌻", class: "sunflower", sellPrice: 15, regrows: false },
       strawberry: { cost: 50, growTime: 60000, emoji: "🍓", class: "strawberry", sellPrice: 20, regrows: true },
@@ -333,142 +315,142 @@
       blackberry: { cost: 5000, growTime: 260000, emoji: "🫐", class: "blackberry", sellPrice: 2000, regrows: true }
     };
 
+    // --- Mutation Types (higher chance for demo) ---
+    const mutationTypes = {
+      visual: { chance: 0.15, apply: plant => plant.classList.add("mutated") },
+      growth: { chance: 0.10, apply: plant => plant.dataset.mutGrowth = "true" },
+      yield: { chance: 0.10, apply: plant => plant.dataset.mutYield = "true" },
+      regrowth: { chance: 0.08, apply: plant => plant.dataset.mutRegrow = "true" },
+      resistance: { chance: 0.08, apply: plant => plant.dataset.mutResist = "true" }
+    };
+
+    // --- Environmental Events ---
+    const events = {
+      solarFlare: { name: "Solar Flare", boost: 0.05, duration: 60000 },
+      radiationStorm: { name: "Radiation Storm", boost: 0.07, duration: 60000 },
+      chemicalSpill: { name: "Chemical Spill", boost: 0.03, yieldPenalty: 0.5, duration: 60000 },
+      pesticideExposure: { name: "Pesticide Exposure", boost: -0.02, fastGrow: true, duration: 60000 },
+      geneticDrift: { name: "Genetic Drift", forceMutate: true, duration: 30000 }
+    };
+    let activeEvent = null;
+
+    function getCurrentBoost() {
+      if (!activeEvent) return 0;
+      return events[activeEvent].boost || 0;
+    }
+    function isEventActive(name) {
+      return activeEvent === name;
+    }
+    function startEvent(name) {
+      const ev = events[name];
+      activeEvent = name;
+      setTimeout(() => { activeEvent = null; }, ev.duration);
+    }
+    function randomEventLoop() {
+      const keys = Object.keys(events);
+      setInterval(() => {
+        if (activeEvent) return;
+        if (Math.random() < 0.3) {
+          const pick = keys[Math.floor(Math.random() * keys.length)];
+          startEvent(pick);
+        }
+      }, 90000);
+    }
+    randomEventLoop();
+    function applyMutations(plant) {
+      let tooltipText = [];
+      for (const key in mutationTypes) {
+        const base = mutationTypes[key].chance;
+        let chance = base + getCurrentBoost();
+        if (Math.random() < chance || (isEventActive("geneticDrift") && Math.random() < 0.5)) {
+          mutationTypes[key].apply(plant);
+          tooltipText.push(key);
+        }
+      }
+      if (tooltipText.length) {
+        plant.dataset.mutated = tooltipText.join(",");
+        plant.classList.add("mutated");
+      }
+    }
+
+    // --- Garden Naming ---
+    function promptGardenName() {
+      let name = "";
+      while (!name) {
+        name = prompt("Please choose a name for your garden:", gardenName === "Please choose a name" ? "" : gardenName);
+        if (name === null) { // User cancelled
+          name = gardenName || "My Garden";
+          break;
+        }
+        name = name.trim();
+      }
+      gardenName = name;
+      updateGardenTitle();
+      saveGame();
+    }
+    function updateGardenTitle() {
+      document.getElementById("gardenTitleDisplay").textContent = `🌻 ${gardenName}'s Garden`;
+    }
+
+    // --- UI Helpers ---
     function updateUI() {
       document.getElementById('coins').textContent = coins;
-      document.getElementById('sunflowerCount').textContent = inventory.sunflower;
-      document.getElementById('strawberryCount').textContent = inventory.strawberry;
-      document.getElementById('blueberryCount').textContent = inventory.blueberry;
-      document.getElementById('TulipCount').textContent = inventory.Tulip;
-      document.getElementById('TomatoCount').textContent = inventory.Tomato;
-      document.getElementById('PotatoCount').textContent = inventory.Potato;
-      document.getElementById('PeachCount').textContent = inventory.Peach;
-      document.getElementById('PapayaCount').textContent = inventory.Papaya;
-      document.getElementById('PineappleCount').textContent = inventory.Pineapple;
-      document.getElementById('grapeCount').textContent = inventory.grape;
-      document.getElementById('appleCount').textContent = inventory.apple;
-      document.getElementById('pearCount').textContent = inventory.pear;
-      document.getElementById('orangeCount').textContent = inventory.orange;
-      document.getElementById('blackberryCount').textContent = inventory.blackberry;
-      document.getElementById('fertilizerCount').textContent = inventory.fertilizer;
-      document.getElementById('wateringCount').textContent = inventory.wateringCan;
+      for (let k in inventory) {
+        let id = k.charAt(0).toUpperCase() + k.slice(1);
+        const el = document.getElementById(k + "Count") || document.getElementById(id + "Count");
+        if (el) el.textContent = inventory[k];
+      }
       document.getElementById('trowelCount').textContent = trowelUses;
       document.getElementById('harvestAllUses').textContent = "Harvest All Uses: " + harvestAllUses;
     }
 
-    function buySeed(type) {
-      const p = plantData[type];
-      if (coins >= p.cost) {
-        coins -= p.cost;
-        inventory[type]++;
-        saveGame();
-        updateUI();
-      }
-    }
-
-    function buyTrowel() {
-      if (coins >= 200) {
-        coins -= 200;
-        trowelUses += 5;
-        saveGame();
-        updateUI();
-      }
-    }
-
-    function buyHarvestAll() {
-      if (coins >= 500) {
-        coins -= 500;
-        harvestAllUses += 1;
-        saveGame();
-        updateUI();
+    function toggleGardenInfo() {
+      const panel = document.getElementById("gardenInfoPanel");
+      if (panel.style.display === "block") {
+        panel.style.display = "none";
+      } else {
         updateGardenInfo();
+        panel.style.display = "block";
       }
     }
+    document.getElementById("gardenTitle").onclick = toggleGardenInfo;
 
-    function removePlant(plant) {
-      plant.remove();
-      saveGame();
-      updateUI();
-      updateGardenInfo();
+    function getPlantCounts() {
+      const garden = document.getElementById("garden");
+      const plants = Array.from(garden.getElementsByClassName("plant"));
+      const counts = {};
+      for (let k in plantData) counts[k] = 0;
+      plants.forEach(plant => {
+        if (counts.hasOwnProperty(plant.dataset.type)) counts[plant.dataset.type]++;
+      });
+      return counts;
     }
 
-    function buyFertilizer() {
-      if (coins >= 50) {
-        coins -= 50;
-        inventory.fertilizer++;
-        saveGame();
-        updateUI();
+    function getPlantCountsHTML() {
+      const counts = getPlantCounts();
+      let html = `<b>In Garden:</b><ul style="margin:0;padding-left:18px;">`;
+      for (let k in counts) {
+        html += `<li>${k.charAt(0).toUpperCase() + k.slice(1)}: ${counts[k]}</li>`;
       }
+      html += `</ul>`;
+      return html;
     }
 
-    function buyWateringCan() {
-      if (coins >= 150) {
-        coins -= 150;
-        inventory.wateringCan++;
-        saveGame();
-        updateUI();
+    function updateGardenInfo() {
+      const now = Date.now();
+      const elapsed = now - gardenStartTime;
+      const seconds = Math.floor((elapsed / 1000) % 60);
+      const minutes = Math.floor((elapsed / 1000 / 60) % 60);
+      const hours = Math.floor((elapsed / 1000 / 60 / 60));
+      document.getElementById("gardenTime").textContent =
+        `Time Spent: ${hours}h ${minutes}m ${seconds}s`;
+      document.getElementById("harvestAllUses").textContent = "Harvest All Uses: " + harvestAllUses;
+      const counts = getPlantCounts();
+      let html = "";
+      for (let k in counts) {
+        html += `<li>${k.charAt(0).toUpperCase() + k.slice(1)}: ${counts[k]}</li>`;
       }
-    }
-
-    function plantSeed(type) {
-      if (inventory[type] <= 0) return alert("No seeds!");
-      inventory[type]--;
-      saveGame();
-      updateUI();
-
-      const p = plantData[type];
-      const plant = document.createElement("div");
-      plant.classList.add("plant");
-      plant.dataset.type = type;
-      plant.dataset.fertilized = "false";
-      plant.dataset.ready = "false";
-
-      const tooltip = document.createElement("div");
-      tooltip.className = "tooltip";
-      plant.appendChild(tooltip);
-
-      document.getElementById("garden").appendChild(plant);
-
-      let duration = p.growTime;
-      let plantedAt = Date.now();
-      let readyAt = plantedAt + duration;
-
-      const interval = setInterval(() => {
-        let now = Date.now();
-        let left = Math.max(0, Math.floor((readyAt - now) / 1000));
-        tooltip.textContent = left > 0 ? `${left}s remaining` : "Ready!";
-      }, 500);
-
-      const grow = () => {
-        plant.textContent = p.emoji;
-        plant.classList.add("flower", p.class);
-        plant.dataset.ready = "true";
-        clearInterval(interval);
-        saveGame();
-      }
-
-      setTimeout(grow, duration);
-
-      plant.onclick = () => {
-        if (plant.dataset.ready === "true") {
-          coins += p.sellPrice;
-          saveGame();
-          updateUI();
-          if (p.regrows) {
-            plant.textContent = "🌱";
-            plant.classList.remove(p.class, "flower", "fertilized");
-            plant.dataset.ready = "false";
-            setTimeout(grow, duration);
-          } else {
-            clearInterval(interval);
-            plant.remove();
-          }
-          updateGardenInfo();
-        } else {
-          selectedPlant = { el: plant, type, growTime: duration, sell: p.sellPrice };
-          showPlantInfoPanel(type, p.sellPrice, duration, plant);
-        }
-      };
-      updateGardenInfo();
+      document.getElementById("gardenPlantCounts").innerHTML = html;
     }
 
     function showPlantInfoPanel(type, sellPrice, growTime, plantEl) {
@@ -484,7 +466,7 @@
         trowelBtn.style.display = "inline-block";
         trowelBtn.onclick = function() {
           if (selectedPlant && selectedPlant.el) {
-            removePlant(selectedPlant.el);
+            selectedPlant.el.remove();
             trowelUses--;
             saveGame();
             updateUI();
@@ -498,37 +480,146 @@
       }
     }
 
-    function applyFertilizerToInfo() {
-      if (!selectedPlant || inventory.fertilizer <= 0) return;
-      const plant = selectedPlant.el;
-      if (plant.dataset.fertilized === "true" || plant.dataset.ready === "true") return;
-      inventory.fertilizer--;
-      plant.dataset.fertilized = "true";
+    document.getElementById("closePlantInfo").onclick = function() {
+      document.getElementById("plantInfoPanel").style.display = "none";
+      document.getElementById("trowelRemoveBtn").style.display = "none";
+      selectedPlant = null;
+    };
 
-      const p = plantData[plant.dataset.type];
+    // --- Shop Functions ---
+    function buySeed(type) {
+      const p = plantData[type];
+      if (coins >= p.cost) {
+        coins -= p.cost;
+        inventory[type]++;
+        saveGame();
+        updateUI();
+      }
+    }
+    function buyFertilizer() {
+      if (coins >= 50) {
+        coins -= 50;
+        inventory.fertilizer++;
+        saveGame();
+        updateUI();
+      }
+    }
+    function buyWateringCan() {
+      if (coins >= 150) {
+        coins -= 150;
+        inventory.wateringCan++;
+        saveGame();
+        updateUI();
+      }
+    }
+    function buyTrowel() {
+      if (coins >= 200) {
+        coins -= 200;
+        trowelUses += 5;
+        saveGame();
+        updateUI();
+      }
+    }
+    function buyHarvestAll() {
+      if (coins >= 500) {
+        coins -= 500;
+        harvestAllUses++;
+        saveGame();
+        updateUI();
+        updateGardenInfo();
+      }
+    }
 
-      let duration = p.growTime/2;
-      let plantedAt = Date.now();
-      let readyAt = plantedAt + duration;
+    // --- Planting ---
+    function plantSeed(type) {
+      if (inventory[type] <= 0) return alert("No seeds!");
+      inventory[type]--;
+      saveGame();
+      updateUI();
 
+      const data = plantData[type];
+      const plant = document.createElement("div");
+      plant.className = "plant";
+      plant.dataset.type = type;
+      plant.dataset.ready = "false";
+      plant.dataset.fertilized = "false";
+
+      const tooltip = document.createElement("div");
+      tooltip.className = "tooltip";
+      plant.appendChild(tooltip);
+
+      document.getElementById("garden").appendChild(plant);
+
+      applyMutations(plant);
+
+      let growTime = data.growTime;
+      if (plant.dataset.mutGrowth === "true" || isEventActive("pesticideExposure")) {
+        growTime *= 0.5;
+      }
+
+      let readyAt = Date.now() + growTime;
       const interval = setInterval(() => {
-        let now = Date.now();
-        let left = Math.max(0, Math.floor((readyAt - now) / 1000));
-        plant.textContent = left > 0 ? `${left}s remaining` : "Ready!";
+        const left = Math.max(0, Math.floor((readyAt - Date.now()) / 1000));
+        tooltip.textContent = left > 0 ? `${left}s remaining` : "Ready!";
       }, 500);
 
       const grow = () => {
-        plant.textContent = p.emoji;
-        plant.classList.add("flower", p.class);
+        plant.textContent = data.emoji;
+        plant.classList.add("flower", data.class);
         plant.dataset.ready = "true";
         clearInterval(interval);
         saveGame();
-      }
-      setTimeout(grow, duration);
+        updateUI();
+      };
+      setTimeout(grow, growTime);
 
+      plant.onclick = () => {
+        if (plant.dataset.ready === "true") {
+          let bonus = data.sellPrice;
+          if (plant.dataset.mutYield === "true") bonus *= 2;
+          if (isEventActive("chemicalSpill")) bonus *= (events.chemicalSpill.yieldPenalty || 1);
+          coins += Math.floor(bonus);
+          saveGame();
+          updateUI();
+
+          if (data.regrows || plant.dataset.mutRegrow === "true") {
+            plant.textContent = "🌱";
+            plant.classList.remove(data.class, "flower", "fertilized");
+            plant.dataset.ready = "false";
+            setTimeout(grow, growTime);
+          } else {
+            clearInterval(interval);
+            plant.remove();
+          }
+          updateGardenInfo();
+        } else {
+          selectedPlant = { el: plant, type, growTime: growTime, sell: data.sellPrice };
+          showPlantInfoPanel(type, data.sellPrice, growTime, plant);
+        }
+      };
+      updateGardenInfo();
+    }
+
+    // --- Plant Actions ---
+    function applyFertilizerToInfo() {
+      if (!selectedPlant || inventory.fertilizer <= 0) return;
+      const plant = selectedPlant.el;
+      if (plant.dataset.ready === "true" || plant.dataset.fertilized === "true") return;
+      inventory.fertilizer--;
+      plant.dataset.fertilized = "true";
       plant.classList.add("fertilized");
       saveGame();
       updateUI();
+
+      const p = plantData[plant.dataset.type];
+      const growTime = p.growTime / 2;
+      setTimeout(() => {
+        plant.textContent = p.emoji;
+        plant.classList.add("flower", p.class);
+        plant.dataset.ready = "true";
+        saveGame();
+        updateUI();
+      }, growTime);
     }
 
     function applyWateringToInfo() {
@@ -551,25 +642,26 @@
       plants.forEach(plant => {
         const type = plant.dataset.type;
         if (plant.dataset.ready === "true") {
-          coins += plantData[type].sellPrice;
-          plant.textContent = "🌱";
-          plant.classList.remove(plantData[type].class, "flower", "fertilized");
-          plant.dataset.ready = "false";
-          let duration = plantData[type].growTime;
-          let readyAt = Date.now() + duration;
-          const tooltip = plant.querySelector('.tooltip');
-          const interval = setInterval(() => {
-            let now = Date.now();
-            let left = Math.max(0, Math.floor((readyAt - now) / 1000));
-            tooltip.textContent = left > 0 ? `${left}s remaining` : "Ready!";
-          }, 500);
-          setTimeout(() => {
-            plant.textContent = plantData[type].emoji;
-            plant.classList.add("flower", plantData[type].class);
-            plant.dataset.ready = "true";
-            clearInterval(interval);
-            saveGame();
-          }, duration);
+          let val = plantData[type].sellPrice;
+          if (plant.dataset.mutYield === "true") val *= 2;
+          if (isEventActive("chemicalSpill")) val *= (events.chemicalSpill.yieldPenalty || 1);
+          coins += Math.floor(val * 2);
+          if (plantData[type].regrows || plant.dataset.mutRegrow === "true") {
+            plant.textContent = "🌱";
+            plant.classList.remove(plantData[type].class, "flower", "fertilized");
+            plant.dataset.ready = "false";
+            const growTime = (plant.dataset.mutGrowth === "true" || isEventActive("pesticideExposure"))
+              ? plantData[type].growTime / 2
+              : plantData[type].growTime;
+            setTimeout(() => {
+              plant.textContent = plantData[type].emoji;
+              plant.classList.add("flower", plantData[type].class);
+              plant.dataset.ready = "true";
+              saveGame();
+            }, growTime);
+          } else {
+            plant.remove();
+          }
           harvested++;
         }
       });
@@ -587,157 +679,143 @@
       }
     });
 
-    function getPlantCounts() {
-      const garden = document.getElementById("garden");
-      const plants = Array.from(garden.getElementsByClassName("plant"));
-      const counts = { sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0, Potato: 0, Peach: 0, Papaya: 0, Pineapple: 0, grape: 0, apple: 0, pear: 0, orange: 0, blackberry: 0 };
-      plants.forEach(plant => {
-        if (counts.hasOwnProperty(plant.dataset.type)) counts[plant.dataset.type]++;
+    // --- Pet Shop (demo logic) ---
+    function updatePetShop() {
+      const pets = [
+        { name: "Bunny", emoji: "🐰", price: 1000 },
+        { name: "Chick", emoji: "🐣", price: 800 },
+        { name: "Hamster", emoji: "🐹", price: 1200 }
+      ];
+      let html = "";
+      pets.forEach(pet => {
+        html += `<div class="pet-card" onclick="buyPet('${pet.name}',${pet.price})">${pet.emoji}<br>${pet.name}<br>${pet.price} coins</div>`;
       });
-      return counts;
+      document.getElementById("petEggsDisplay").innerHTML = html;
+    }
+    function buyPet(name, price) {
+      if (coins < price) {
+        alert("Not enough coins!");
+        return;
+      }
+      coins -= price;
+      alert("You bought a " + name + "!");
+      updateUI();
+    }
+    updatePetShop();
+
+    // --- Bunny Research Center (demo logic) ---
+    function openCarrotResearch() {
+      const carrotTypes = [
+        "Classic Orange", "Purple Haze", "White Satin", "Atomic Red", "Yellowstone",
+        "Cosmic Purple", "Lunar White", "Parisian Market", "Little Finger", "Danvers",
+        "Chantenay", "Nantes", "Kuroda", "Red Samurai", "Solar Yellow", "Black Nebula",
+        "Snowman", "Thumbelina", "Oxheart", "Scarlet Nantes", "Berlicum", "Deep Purple",
+        "Purple Dragon", "White Belgian", "St. Valery", "Parisienne", "Red Cored Chantenay",
+        "Purple Sun", "Yellow Sun", "Cosmic Red", "Purple Elite", "White Gem", "Red Core",
+        "Yellow Baby", "Purple Baby", "White Baby", "Red Baby", "Yellow Giant", "Purple Giant",
+        "White Giant", "Red Giant", "Yellow Mini", "Purple Mini", "White Mini", "Red Mini",
+        "Yellow Sweet", "Purple Sweet", "White Sweet", "Red Sweet", "Rainbow"
+      ];
+      let html = "<ul>";
+      carrotTypes.forEach(type => html += `<li>${type}</li>`);
+      html += "</ul>";
+      document.getElementById("carrotListDisplay").innerHTML = html;
+      document.getElementById("carrotListDisplay").style.display = "block";
     }
 
-    function getPlantCountsHTML() {
-      const counts = getPlantCounts();
-      return `
-        <b>In Garden:</b>
-        <ul style="margin:0;padding-left:18px;">
-          <li>Sunflower: ${counts.sunflower}</li>
-          <li>Strawberry: ${counts.strawberry}</li>
-          <li>Blueberry: ${counts.blueberry}</li>
-          <li>Tulip: ${counts.Tulip}</li>
-          <li>Tomato: ${counts.Tomato}</li>
-          <li>Potato: ${counts.Potato}</li>
-          <li>Peach: ${counts.Peach}</li>
-          <li>Papaya: ${counts.Papaya}</li>
-          <li>Pineapple: ${counts.Pineapple}</li>
-          <li>Grape: ${counts.grape}</li>
-          <li>Apple: ${counts.apple}</li>
-          <li>Pear: ${counts.pear}</li>
-          <li>Orange: ${counts.orange}</li>
-          <li>Blackberry: ${counts.blackberry}</li>
-        </ul>
-      `;
-    }
-
-    function updateGardenInfo() {
-      const now = Date.now();
-      const elapsed = now - gardenStartTime;
-      const seconds = Math.floor((elapsed / 1000) % 60);
-      const minutes = Math.floor((elapsed / 1000 / 60) % 60);
-      const hours = Math.floor((elapsed / 1000 / 60 / 60));
-      document.getElementById("gardenTime").textContent =
-        `Time Spent: ${hours}h ${minutes}m ${seconds}s`;
-      document.getElementById("harvestAllUses").textContent = "Harvest All Uses: " + harvestAllUses;
-      const counts = getPlantCounts();
-      document.getElementById("gardenPlantCounts").innerHTML = `
-        <li>Sunflower: ${counts.sunflower}</li>
-        <li>Strawberry: ${counts.strawberry}</li>
-        <li>Blueberry: ${counts.blueberry}</li>
-        <li>Tulip: ${counts.Tulip}</li>
-        <li>Tomato: ${counts.Tomato}</li>
-        <li>Potato: ${counts.Potato}</li>
-        <li>Peach: ${counts.Peach}</li>
-        <li>Papaya: ${counts.Papaya}</li>
-        <li>Pineapple: ${counts.Pineapple}</li>
-        <li>Grape: ${counts.grape}</li>
-        <li>Apple: ${counts.apple}</li>
-        <li>Pear: ${counts.pear}</li>
-        <li>Orange: ${counts.orange}</li>
-        <li>Blackberry: ${counts.blackberry}</li>
-      `;
-    }
-
-    setInterval(updateGardenInfo, 1000);
-
+    // --- Save/Load ---
     function saveGame() {
-      const garden = document.getElementById("garden");
-      const plants = Array.from(garden.getElementsByClassName("plant")).map(plant => ({
-        type: plant.dataset.type,
-        fertilized: plant.dataset.fertilized,
-        ready: plant.dataset.ready,
-        classList: Array.from(plant.classList),
-        textContent: plant.textContent
+      const plants = Array.from(document.querySelectorAll(".plant")).map(p => ({
+        type: p.dataset.type,
+        ready: p.dataset.ready,
+        classList: Array.from(p.classList),
+        mutated: p.dataset.mutated || "",
+        mutGrowth: p.dataset.mutGrowth,
+        mutYield: p.dataset.mutYield,
+        mutRegrow: p.dataset.mutRegrow,
+        mutResist: p.dataset.mutResist,
+        fertilized: p.dataset.fertilized
       }));
-      const saveData = {
-        coins,
-        inventory,
-        trowelUses,
-        harvestAllUses,
-        gardenStartTime,
-        plants,
-        gardenName
-      };
-      localStorage.setItem("garden_game_save", JSON.stringify(saveData));
+      localStorage.setItem("garden_game_save", JSON.stringify({
+        coins, inventory, trowelUses, harvestAllUses, gardenStartTime, plants, gardenName
+      }));
     }
-
     function loadGame() {
-      const data = localStorage.getItem("garden_game_save");
+      const data = JSON.parse(localStorage.getItem("garden_game_save"));
       if (!data) {
         updateGardenTitle();
         promptGardenName();
         return;
       }
-      try {
-        const save = JSON.parse(data);
-        coins = save.coins || 100;
-        Object.assign(inventory, save.inventory || {});
-        trowelUses = save.trowelUses || 0;
-        harvestAllUses = save.harvestAllUses || 0;
-        gardenStartTime = save.gardenStartTime || Date.now();
-        gardenName = save.gardenName || "Please choose a name";
-        updateGardenTitle();
+      coins = data.coins;
+      Object.assign(inventory, data.inventory);
+      trowelUses = data.trowelUses;
+      harvestAllUses = data.harvestAllUses;
+      gardenStartTime = data.gardenStartTime || Date.now();
+      gardenName = data.gardenName || "Please choose a name";
+      updateGardenTitle();
+      document.getElementById("garden").innerHTML = "";
 
-        const garden = document.getElementById("garden");
-        garden.innerHTML = "";
-        (save.plants || []).forEach(p => {
-          const plant = document.createElement("div");
-          plant.className = "plant";
-          plant.dataset.type = p.type;
-          plant.dataset.fertilized = p.fertilized;
-          plant.dataset.ready = p.ready;
-          p.classList.forEach(cls => plant.classList.add(cls));
-          plant.textContent = p.textContent;
+      (data.plants || []).forEach(p => {
+        const plant = document.createElement("div");
+        plant.className = "plant";
+        plant.dataset.type = p.type;
+        plant.dataset.ready = p.ready;
+        if (p.mutated) {
+          plant.dataset.mutated = p.mutated;
+          plant.classList.add("mutated");
+        }
+        if (p.mutGrowth) plant.dataset.mutGrowth = "true";
+        if (p.mutYield) plant.dataset.mutYield = "true";
+        if (p.mutRegrow) plant.dataset.mutRegrow = "true";
+        if (p.mutResist) plant.dataset.mutResist = "true";
+        if (p.fertilized) plant.dataset.fertilized = "true";
 
-          const tooltip = document.createElement("div");
-          tooltip.className = "tooltip";
-          plant.appendChild(tooltip);
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip";
+        plant.appendChild(tooltip);
 
-          plant.onclick = () => {
-            if (plant.dataset.ready === "true") {
-              coins += plantData[p.type].sellPrice;
-              saveGame();
-              updateUI();
-              if (plantData[p.type].regrows) {
-                plant.textContent = "🌱";
-                plant.classList.remove(plantData[p.type].class, "flower", "fertilized");
-                plant.dataset.ready = "false";
-                setTimeout(() => {
-                  plant.textContent = plantData[p.type].emoji;
-                  plant.classList.add("flower", plantData[p.type].class);
-                  plant.dataset.ready = "true";
-                  saveGame();
-                }, plantData[p.type].growTime);
-              } else {
-                plant.remove();
-              }
-              updateGardenInfo();
+        const emoji = plantData[p.type] ? plantData[p.type].emoji : "🌱";
+        if (plant.dataset.ready === "true") {
+          plant.textContent = emoji;
+          if (plantData[p.type]) plant.classList.add("flower", plantData[p.type].class);
+        } else {
+          plant.textContent = "🌱";
+        }
+
+        plant.onclick = () => {
+          if (plant.dataset.ready === "true") {
+            let coinsToAdd = plantData[p.type].sellPrice;
+            if (plant.dataset.mutYield === "true") coinsToAdd *= 2;
+            coins += coinsToAdd;
+            if (plantData[p.type].regrows || plant.dataset.mutRegrow === "true") {
+              plant.textContent = "🌱";
+              plant.classList.remove(plantData[p.type].class, "flower", "fertilized");
+              plant.dataset.ready = "false";
+              setTimeout(() => {
+                plant.textContent = emoji;
+                plant.classList.add("flower", plantData[p.type].class);
+                plant.dataset.ready = "true";
+              }, plantData[p.type].growTime);
             } else {
-              selectedPlant = { el: plant, type: p.type, growTime: plantData[p.type].growTime, sell: plantData[p.type].sellPrice };
-              showPlantInfoPanel(p.type, plantData[p.type].sellPrice, plantData[p.type].growTime, plant);
+              plant.remove();
             }
-          };
-          garden.appendChild(plant);
-        });
-        updateUI();
-        updateGardenInfo();
-      } catch (e) {
-        console.error("Failed to load save:", e);
-      }
+            updateUI();
+          } else {
+            selectedPlant = { el: plant, type: p.type };
+            showPlantInfoPanel(p.type, plantData[p.type].sellPrice, plantData[p.type].growTime, plant);
+          }
+        };
+
+        document.getElementById("garden").appendChild(plant);
+      });
+      updateUI();
+      updateGardenInfo();
     }
 
-    document.getElementById("resetGameBtn").onclick = function() {
-      if (confirm("Are you sure you want to reset your garden and start over?")) {
+    // --- Reset Button ---
+    document.getElementById("resetGameBtn").onclick = function () {
+      if (confirm("Reset your garden?")) {
         localStorage.removeItem("garden_game_save");
         coins = 100;
         trowelUses = 0;
@@ -746,22 +824,9 @@
         gardenName = "Please choose a name";
         updateGardenTitle();
         Object.assign(inventory, {
-          sunflower: 0,
-          strawberry: 0,
-          blueberry: 0,
-          Tulip: 0,
-          Tomato: 0,
-          Potato: 0,
-          Peach: 0,
-          Papaya: 0,
-          Pineapple: 0,
-          grape: 0,
-          apple: 0,
-          pear: 0,
-          orange: 0,
-          blackberry: 0,
-          fertilizer: 0,
-          wateringCan: 0
+          sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0,
+          Potato: 0, Peach: 0, Papaya: 0, Pineapple: 0, grape: 0, apple: 0, pear: 0, orange: 0, blackberry: 0,
+          fertilizer: 0, wateringCan: 0
         });
         document.getElementById("garden").innerHTML = "";
         updateUI();
@@ -770,6 +835,7 @@
       }
     };
 
+    // --- Startup ---
     window.addEventListener("DOMContentLoaded", function() {
       loadGame();
       updateGardenTitle();
@@ -778,6 +844,7 @@
       }
     });
 
+    setInterval(updateGardenInfo, 1000);
     updateUI();
     updateGardenInfo();
   </script>
