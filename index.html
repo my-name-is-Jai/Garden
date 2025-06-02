@@ -64,6 +64,7 @@
     .blueberry { background: radial-gradient(circle, lightblue, darkblue); }
     .tulip { background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 0, 136)); }
     .tomato { background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 230, 0)); }
+    .potato { background: radial-gradient(circle, rgba(255, 204, 0, 0.296), rgb(255, 191, 0)); }
     .fertilized { animation: glow 1s infinite alternate; }
     @keyframes glow {
       from { box-shadow: 0 0 5px 2px #ffffaa; }
@@ -154,6 +155,7 @@
       <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button><br>
       <button onclick="buySeed('Tulip')">Buy Tulip Seed (600 coins)</button><br>
       <button onclick="buySeed('Tomato')">Buy Tomato Seed (800 coins)</button><br>
+      <button onclick="buySeed('Potato')">Buy Potato Seed (800 coins)</button><br>
     </div>
     <div id="inventory">
       <h2>Inventory</h2>
@@ -162,6 +164,7 @@
       <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
       <p>Tulip Seeds: <span id="TulipCount">0</span></p>
       <p>Tomato Seeds: <span id="TomatoCount">0</span></p>
+      <p>Potato Seeds: <span id="PotatoCount">0</span></p>
       <p>Fertilizer: <span id="fertilizerCount">0</span></p>
       <p>Watering Can: <span id="wateringCount">0</span></p>
       <p>Trowel Uses: <span id="trowelCount">0</span></p>
@@ -170,6 +173,7 @@
       <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
       <button onclick="plantSeed('Tulip')">Plant Tulip 🌱</button>
       <button onclick="plantSeed('Tomato')">Plant Tomato 🌱</button>
+      <button onclick="plantSeed('Potato')">Plant Potato 🌱</button>
     </div>
     <div id="gearShop">
       <h2>Gear Shop</h2>
@@ -224,6 +228,7 @@
       blueberry: 0,
       Tulip: 0,
       Tomato: 0,
+      Potato: 0,
       fertilizer: 0,
       wateringCan: 0
     };
@@ -253,7 +258,8 @@
       strawberry: { cost: 50, growTime: 60000, emoji: "🍓", class: "strawberry", sellPrice: 20, regrows: true },
       blueberry: { cost: 400, growTime: 120000, emoji: "🫐", class: "blueberry", sellPrice: 75, regrows: true },
       Tulip: { cost: 600, growTime: 50000, emoji: "🌷", class: "Tulip", sellPrice: 750, regrows: false },
-      Tomato: { cost: 800, growTime: 240000, emoji: "🍅", class: "tomato", sellPrice: 200, regrows: true }
+      Tomato: { cost: 800, growTime: 240000, emoji: "🍅", class: "tomato", sellPrice: 200, regrows: true }, 
+      Potato: { cost: 1000, growTime: 240000, emoji: "🥔", class: "potato", sellPrice: 350, regrows: true }
     };
 
     function updateUI() {
@@ -263,6 +269,7 @@
       document.getElementById('blueberryCount').textContent = inventory.blueberry;
       document.getElementById('TulipCount').textContent = inventory.Tulip;
       document.getElementById('TomatoCount').textContent = inventory.Tomato;
+      document.getElementById('PotatoCount').textContent = inventory.Potato;
       document.getElementById('fertilizerCount').textContent = inventory.fertilizer;
       document.getElementById('wateringCount').textContent = inventory.wateringCan;
       document.getElementById('trowelCount').textContent = trowelUses;
@@ -520,7 +527,7 @@
     function getPlantCounts() {
       const garden = document.getElementById("garden");
       const plants = Array.from(garden.getElementsByClassName("plant"));
-      const counts = { sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0 };
+      const counts = { sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0, Potato: 0 };
       plants.forEach(plant => {
         if (counts.hasOwnProperty(plant.dataset.type)) counts[plant.dataset.type]++;
       });
@@ -537,6 +544,7 @@
           <li>Blueberry: ${counts.blueberry}</li>
           <li>Tulip: ${counts.Tulip}</li>
           <li>Tomato: ${counts.Tomato}</li>
+          <li>Potato: ${counts.Potato}</li>
         </ul>
       `;
     }
@@ -557,6 +565,7 @@
         <li>Blueberry: ${counts.blueberry}</li>
         <li>Tulip: ${counts.Tulip}</li>
         <li>Tomato: ${counts.Tomato}</li>
+        <li>Potato: ${counts.Potato}</li>
       `;
     }
 
@@ -656,6 +665,7 @@
           blueberry: 0,
           Tulip: 0,
           Tomato: 0,
+          Potato: 0,
           fertilizer: 0,
           wateringCan: 0
         });
