@@ -154,7 +154,7 @@
   <h1 id="gardenTitleDisplay"
       style="text-align:center; margin-bottom:0.5em; cursor:pointer; background:#e0ffe0; border-radius:10px; display:inline-block; padding:0.3em 1em; border:2px solid #77cc77; user-select:none; margin-left:50%; transform:translateX(-50%);"
       onclick="promptGardenName()">
-    🌻 My Garden's Garden
+    🌻 Please choose a name's Garden
   </h1>
   <button id="resetGameBtn">Reset Game</button>
   <div id="coinsDisplay">Coins: <span id="coins">100</span></div>
@@ -257,7 +257,7 @@
     let trowelUses = 0;
     let harvestAllUses = 0;
     let gardenStartTime = Date.now();
-    let gardenName = "My Garden";
+    let gardenName = "Please choose a name";
 
     const inventory = {
       sunflower: 0,
@@ -278,14 +278,26 @@
       wateringCan: 0
     };
 
-    function promptGardenName() {
-      let name = prompt("Enter your garden name:", gardenName);
-      if (name === null) return;
-      name = name.trim();
-      if (name.length === 0) name = "My Garden";
-      gardenName = name;
-      updateGardenTitle();
-      saveGame();
+    function promptGardenName(force = false) {
+      if (
+        force ||
+        gardenName === "Please choose a name" ||
+        !gardenName ||
+        gardenName === "My Garden"
+      ) {
+        let name = "";
+        while (!name) {
+          name = prompt("Please choose a name for your garden:", gardenName === "Please choose a name" ? "" : gardenName);
+          if (name === null) { // User cancelled
+            name = "My Garden";
+            break;
+          }
+          name = name.trim();
+        }
+        gardenName = name;
+        updateGardenTitle();
+        saveGame();
+      }
     }
 
     function updateGardenTitle() {
@@ -669,6 +681,7 @@
       const data = localStorage.getItem("garden_game_save");
       if (!data) {
         updateGardenTitle();
+        promptGardenName(true);
         return;
       }
       try {
@@ -678,7 +691,7 @@
         trowelUses = save.trowelUses || 0;
         harvestAllUses = save.harvestAllUses || 0;
         gardenStartTime = save.gardenStartTime || Date.now();
-        gardenName = save.gardenName || "My Garden";
+        gardenName = save.gardenName || "Please choose a name";
         updateGardenTitle();
 
         const garden = document.getElementById("garden");
@@ -736,7 +749,7 @@
         trowelUses = 0;
         harvestAllUses = 0;
         gardenStartTime = Date.now();
-        gardenName = "My Garden";
+        gardenName = "Please choose a name";
         updateGardenTitle();
         Object.assign(inventory, {
           sunflower: 0,
@@ -759,12 +772,16 @@
         document.getElementById("garden").innerHTML = "";
         updateUI();
         updateGardenInfo();
+        promptGardenName(true);
       }
     };
 
     window.addEventListener("DOMContentLoaded", function() {
       loadGame();
       updateGardenTitle();
+      if (!gardenName || gardenName === "Please choose a name" || gardenName === "My Garden") {
+        promptGardenName(true);
+      }
     });
 
     updateUI();
