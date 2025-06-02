@@ -67,6 +67,7 @@
     .potato { background: radial-gradient(circle, rgba(255, 204, 0, 0.296), rgb(255, 191, 0)); }
     .peach { background: radial-gradient(circle, rgba(255, 153, 0, 0.296), rgba(255, 179, 0, 0.882)); }
     .papaya { background: radial-gradient(circle, #ffe066, #ffb347); }
+    .pineapple { background: radial-gradient(circle, #ffe066, #ffe066 60%, #c2b900 100%); }
     .fertilized { animation: glow 1s infinite alternate; }
     @keyframes glow {
       from { box-shadow: 0 0 5px 2px #ffffaa; }
@@ -161,6 +162,7 @@
       <button onclick="buySeed('Potato')">Buy Potato Seed (1000 coins)</button><br>
       <button onclick="buySeed('Peach')">Buy Peach Seed (1250 coins)</button><br>
       <button onclick="buySeed('Papaya')">Buy Papaya Seed (1500 coins)</button><br>
+      <button onclick="buySeed('Pineapple')">Buy Pineapple Seed (2000 coins)</button><br>
     </div>
     <div id="inventory">
       <h2>Inventory</h2>
@@ -172,6 +174,7 @@
       <p>Potato Seeds: <span id="PotatoCount">0</span></p>
       <p>Peach Seeds: <span id="PeachCount">0</span></p>
       <p>Papaya Seeds: <span id="PapayaCount">0</span></p>
+      <p>Pineapple Seeds: <span id="PineappleCount">0</span></p>
       <p>Fertilizer: <span id="fertilizerCount">0</span></p>
       <p>Watering Can: <span id="wateringCount">0</span></p>
       <p>Trowel Uses: <span id="trowelCount">0</span></p>
@@ -183,6 +186,7 @@
       <button onclick="plantSeed('Potato')">Plant Potato 🌱</button>
       <button onclick="plantSeed('Peach')">Plant Peach 🌱</button>
       <button onclick="plantSeed('Papaya')">Plant Papaya 🌱</button>
+      <button onclick="plantSeed('Pineapple')">Plant Pineapple 🌱</button>
     </div>
     <div id="gearShop">
       <h2>Gear Shop</h2>
@@ -240,6 +244,7 @@
       Potato: 0,
       Peach: 0,
       Papaya: 0,
+      Pineapple: 0,
       fertilizer: 0,
       wateringCan: 0
     };
@@ -272,7 +277,8 @@
       Tomato: { cost: 800, growTime: 240000, emoji: "🍅", class: "tomato", sellPrice: 200, regrows: true },
       Potato: { cost: 1000, growTime: 200000, emoji: "🥔", class: "potato", sellPrice: 350, regrows: true },
       Peach: { cost: 1250, growTime: 100000, emoji: "🍑", class: "peach", sellPrice: 500, regrows: true },
-      Papaya: { cost: 1500, growTime: 180000, emoji: "🥭", class: "papaya", sellPrice: 750, regrows: true }
+      Papaya: { cost: 1500, growTime: 180000, emoji: "🥭", class: "papaya", sellPrice: 750, regrows: true },
+      Pineapple: { cost: 2000, growTime: 220000, emoji: "🍍", class: "pineapple", sellPrice: 900, regrows: true }
     };
 
     function updateUI() {
@@ -285,6 +291,7 @@
       document.getElementById('PotatoCount').textContent = inventory.Potato;
       document.getElementById('PeachCount').textContent = inventory.Peach;
       document.getElementById('PapayaCount').textContent = inventory.Papaya;
+      document.getElementById('PineappleCount').textContent = inventory.Pineapple;
       document.getElementById('fertilizerCount').textContent = inventory.fertilizer;
       document.getElementById('wateringCount').textContent = inventory.wateringCan;
       document.getElementById('trowelCount').textContent = trowelUses;
@@ -541,7 +548,7 @@
     function getPlantCounts() {
       const garden = document.getElementById("garden");
       const plants = Array.from(garden.getElementsByClassName("plant"));
-      const counts = { sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0, Potato: 0, Peach: 0, Papaya: 0 };
+      const counts = { sunflower: 0, strawberry: 0, blueberry: 0, Tulip: 0, Tomato: 0, Potato: 0, Peach: 0, Papaya: 0, Pineapple: 0 };
       plants.forEach(plant => {
         if (counts.hasOwnProperty(plant.dataset.type)) counts[plant.dataset.type]++;
       });
@@ -561,6 +568,7 @@
           <li>Potato: ${counts.Potato}</li>
           <li>Peach: ${counts.Peach}</li>
           <li>Papaya: ${counts.Papaya}</li>
+          <li>Pineapple: ${counts.Pineapple}</li>
         </ul>
       `;
     }
@@ -584,6 +592,7 @@
         <li>Potato: ${counts.Potato}</li>
         <li>Peach: ${counts.Peach}</li>
         <li>Papaya: ${counts.Papaya}</li>
+        <li>Pineapple: ${counts.Pineapple}</li>
       `;
     }
 
@@ -686,6 +695,7 @@
           Potato: 0,
           Peach: 0,
           Papaya: 0,
+          Pineapple: 0,
           fertilizer: 0,
           wateringCan: 0
         });
