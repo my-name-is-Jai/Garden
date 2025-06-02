@@ -873,12 +873,14 @@
     document.getElementById("resetGameBtn").onclick = function() {
       if (confirm("Are you sure you want to reset your garden and start over?")) {
         localStorage.removeItem("garden_game_save");
+        localStorage.removeItem("garden_achievements"); // Clear achievements on reset
         coins = 100;
         trowelUses = 0;
         harvestAllUses = 0;
         gardenStartTime = Date.now();
         gardenName = "Please choose a name";
         totalCoinsEarned = 0;
+        achievements = {}; // Reset achievements in memory
         updateGardenTitle();
         Object.assign(inventory, {
           sunflower: 0,
