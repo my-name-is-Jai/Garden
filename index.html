@@ -376,10 +376,20 @@
       document.getElementById("achievementsModal").style.display = "block";
     }
     document.getElementById("achievementsBtn").onclick = showAchievementsModal;
+
     function checkFirstFruit(type) {
       const key = "first_" + type;
       if (!achievements[key]) {
         unlockAchievement(key);
+      }
+    }
+
+    // Unlock achievement when planting a seed (not just harvesting)
+    function checkFirstPlant(type) {
+      const key = "first_" + type;
+      if (!achievements[key]) {
+        achievements[key] = true;
+        saveAchievements();
       }
     }
 
@@ -521,6 +531,7 @@
     function plantSeed(type) {
       if (inventory[type] <= 0) return alert("No seeds!");
       inventory[type]--;
+      checkFirstPlant(type); // Unlock achievement on planting
       saveGame();
       updateUI();
 
