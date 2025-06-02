@@ -278,26 +278,20 @@
       wateringCan: 0
     };
 
-    function promptGardenName(force = false) {
-      if (
-        force ||
-        gardenName === "Please choose a name" ||
-        !gardenName ||
-        gardenName === "My Garden"
-      ) {
-        let name = "";
-        while (!name) {
-          name = prompt("Please choose a name for your garden:", gardenName === "Please choose a name" ? "" : gardenName);
-          if (name === null) { // User cancelled
-            name = "My Garden";
-            break;
-          }
-          name = name.trim();
+    // Always prompt for a new name when the title is clicked
+    function promptGardenName() {
+      let name = "";
+      while (!name) {
+        name = prompt("Please choose a name for your garden:", gardenName === "Please choose a name" ? "" : gardenName);
+        if (name === null) { // User cancelled
+          name = gardenName || "My Garden";
+          break;
         }
-        gardenName = name;
-        updateGardenTitle();
-        saveGame();
+        name = name.trim();
       }
+      gardenName = name;
+      updateGardenTitle();
+      saveGame();
     }
 
     function updateGardenTitle() {
@@ -681,7 +675,7 @@
       const data = localStorage.getItem("garden_game_save");
       if (!data) {
         updateGardenTitle();
-        promptGardenName(true);
+        promptGardenName();
         return;
       }
       try {
@@ -772,7 +766,7 @@
         document.getElementById("garden").innerHTML = "";
         updateUI();
         updateGardenInfo();
-        promptGardenName(true);
+        promptGardenName();
       }
     };
 
@@ -780,7 +774,7 @@
       loadGame();
       updateGardenTitle();
       if (!gardenName || gardenName === "Please choose a name" || gardenName === "My Garden") {
-        promptGardenName(true);
+        promptGardenName();
       }
     });
 
