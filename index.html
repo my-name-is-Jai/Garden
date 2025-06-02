@@ -105,6 +105,7 @@
       padding: 1rem;
       width: 220px;
       display: none;
+      position: relative;
     }
     #plantInfoPanel h3 { margin: 0 0 0.5rem; }
     #gardenInfoPanel {
@@ -156,8 +157,8 @@
       <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button><br>
       <button onclick="buySeed('Tulip')">Buy Tulip Seed (600 coins)</button><br>
       <button onclick="buySeed('Tomato')">Buy Tomato Seed (800 coins)</button><br>
-      <button onclick="buySeed('Potato')">Buy Potato Seed (800 coins)</button><br>
-      <button onclick="buySeed('Peach')">Buy Peach Seed (800 coins)</button><br>
+      <button onclick="buySeed('Potato')">Buy Potato Seed (1000 coins)</button><br>
+      <button onclick="buySeed('Peach')">Buy Peach Seed (1250 coins)</button><br>
     </div>
     <div id="inventory">
       <h2>Inventory</h2>
@@ -467,9 +468,8 @@
         clearInterval(interval);
         saveGame();
       }
-      alert("Duration: "+duration)
       setTimeout(grow, duration);
-    
+
       plant.classList.add("fertilized");
       saveGame();
       updateUI();
