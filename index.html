@@ -148,11 +148,22 @@
     #resetGameBtn:hover {
       background: #d32f2f;
     }
+    /* Garden name input styling */
+    #gardenNameInput {
+      font-size: 1em;
+      padding: 0.3em;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      margin-bottom: 0.5em;
+    }
   </style>
 </head>
 <body>
-  <button id="resetGameBtn">Reset Game</button>
-  <h1>🌻 My Garden Game</h1>
+  <div style="text-align:center; margin-top:1em;">
+    <input id="gardenNameInput" type="text" placeholder="Enter your garden name">
+    <button onclick="setGardenName()">Set Garden Name</button>
+  </div>
+  <h1 id="gardenTitleDisplay" style="text-align:center; margin-bottom:0.5em;">🌻 My Garden's Garden</h1>
   <div id="coinsDisplay">Coins: <span id="coins">100</span></div>
 
   <div id="main">
@@ -253,6 +264,7 @@
     let trowelUses = 0;
     let harvestAllUses = 0;
     let gardenStartTime = Date.now();
+    let gardenName = "My Garden";
 
     const inventory = {
       sunflower: 0,
@@ -272,6 +284,19 @@
       fertilizer: 0,
       wateringCan: 0
     };
+
+    function setGardenName() {
+      const input = document.getElementById("gardenNameInput");
+      let name = input.value.trim();
+      if (name.length === 0) name = "My Garden";
+      gardenName = name;
+      updateGardenTitle();
+      saveGame();
+    }
+
+    function updateGardenTitle() {
+      document.getElementById("gardenTitleDisplay").textContent = `🌻 ${gardenName}'s Garden`;
+    }
 
     document.getElementById("closePlantInfo").onclick = function() {
       document.getElementById("plantInfoPanel").style.display = "none";
@@ -640,14 +665,18 @@
         trowelUses,
         harvestAllUses,
         gardenStartTime,
-        plants
+        plants,
+        gardenName
       };
       localStorage.setItem("garden_game_save", JSON.stringify(saveData));
     }
 
     function loadGame() {
       const data = localStorage.getItem("garden_game_save");
-      if (!data) return;
+      if (!data) {
+        updateGardenTitle();
+        return;
+      }
       try {
         const save = JSON.parse(data);
         coins = save.coins || 100;
@@ -655,6 +684,8 @@
         trowelUses = save.trowelUses || 0;
         harvestAllUses = save.harvestAllUses || 0;
         gardenStartTime = save.gardenStartTime || Date.now();
+        gardenName = save.gardenName || "My Garden";
+        updateGardenTitle();
 
         const garden = document.getElementById("garden");
         garden.innerHTML = "";
@@ -711,6 +742,8 @@
         trowelUses = 0;
         harvestAllUses = 0;
         gardenStartTime = Date.now();
+        gardenName = "My Garden";
+        updateGardenTitle();
         Object.assign(inventory, {
           sunflower: 0,
           strawberry: 0,
@@ -735,7 +768,10 @@
       }
     };
 
-    window.addEventListener("DOMContentLoaded", loadGame);
+    window.addEventListener("DOMContentLoaded", function() {
+      loadGame();
+      updateGardenTitle();
+    });
 
     updateUI();
     updateGardenInfo();
