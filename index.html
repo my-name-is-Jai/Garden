@@ -358,9 +358,19 @@
         const nice = type.charAt(0).toUpperCase() + type.slice(1);
         const unlocked = achievements[key];
         const li = document.createElement("li");
-        li.textContent = `First ${nice}`;
-        li.style.color = unlocked ? "#388e3c" : "#aaa";
-        if (unlocked) li.innerHTML = "🏆 " + li.innerHTML;
+        if (unlocked) {
+          li.textContent = `🏆 First ${nice}`;
+          li.style.color = "#388e3c";
+          li.style.background = "#fff";
+        } else {
+          li.textContent = "";
+          li.style.background = "#222";
+          li.style.width = "180px";
+          li.style.height = "24px";
+          li.style.borderRadius = "8px";
+          li.style.margin = "6px 0";
+          li.style.display = "inline-block";
+        }
         list.appendChild(li);
       });
       document.getElementById("achievementsModal").style.display = "block";
@@ -827,7 +837,7 @@
                 plant.dataset.ready = "false";
                 setTimeout(() => {
                   plant.textContent = plantData[p.type].emoji;
-                  plant.classList.add("flower", plantData[p.type].class);
+                  plant.classList.add(plantData[p.type].class, "flower");
                   plant.dataset.ready = "true";
                   saveGame();
                 }, plantData[p.type].growTime);
