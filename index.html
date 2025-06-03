@@ -708,20 +708,35 @@
     }
     randomEventLoop();
     function applyMutations(plant) {
-      let tooltipText = [];
-      for (const key in mutationTypes) {
-        const base = mutationTypes[key].chance;
-        let chance = base + getCurrentBoost();
-        if (Math.random() < chance || (isEventActive("geneticDrift") && Math.random() < 0.5)) {
-          mutationTypes[key].apply(plant);
-          tooltipText.push(key);
-        }
-      }
-      if (tooltipText.length) {
-        plant.dataset.mutated = tooltipText.join(",");
-        plant.classList.add("mutated");
-      }
+  // Clear previous mutation
+  plant.classList.remove("mutated");
+  delete plant.dataset.mutGrowth;
+  delete plant.dataset.mutYield;
+  delete plant.dataset.mutRegrow;
+  delete plant.dataset.mutResist;
+
+  let chosen = "";
+  for (const key in mutationTypes) {
+    const base = mutationTypes[key].chance;
+    let chance = base + getCurrentBoost();
+    if (Math.random() < chance || (isEventActive("geneticDrift") && Math.random() < 0.5)) {
+      chosen = key;
+      break; // Only one mutation per fruit
     }
+  }
+  if (chosen) {
+    mutationTypes[chosen].apply(plant);
+    plant.dataset.mutated = chosen;
+    if (chosen === "visual") plant.classList.add("mutated");
+  } else {
+    plant.dataset.mutated = "";
+  }
+  // Optional: update tooltip
+  const tooltip = plant.querySelector('.tooltip');
+  if (tooltip) {
+    tooltip.textContent = chosen ? `Mutation: ${chosen}` : "";
+  }
+}
 
     // --- Garden Naming ---
     function promptGardenName() {
