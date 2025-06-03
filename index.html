@@ -233,6 +233,29 @@
       color: #888;
       font-size: 0.95em;
     }
+    /* Unique visuals for each mutation */
+.mutated-visual {
+  animation: glow 1.2s infinite alternate;
+  box-shadow: 0 0 12px 6px orange, 0 0 24px 12px gold;
+}
+.mutated-growth {
+  border: 3px dashed #00cfff !important;
+  background: linear-gradient(135deg, #e0ffe0 60%, #b3f0ff 100%) !important;
+}
+.mutated-yield {
+  border: 3px solid gold !important;
+  background: linear-gradient(135deg, #fffbe0 60%, #ffe066 100%) !important;
+}
+.mutated-regrow {
+  border: 3px solid #77cc77 !important;
+  background: linear-gradient(135deg, #e0ffe0 60%, #baffba 100%) !important;
+  box-shadow: 0 0 8px 2px #77cc77;
+}
+.mutated-resist {
+  border: 3px double #b388ff !important;
+  background: linear-gradient(135deg, #f5e6ff 60%, #d1b3ff 100%) !important;
+  filter: grayscale(0.5);
+}
   </style>
 </head>
 <body>
@@ -667,12 +690,40 @@
 
     // --- Mutation Types (higher chance for demo) ---
     const mutationTypes = {
-      visual: { chance: 0.15, apply: plant => plant.classList.add("mutated") },
-      growth: { chance: 0.10, apply: plant => plant.dataset.mutGrowth = "true" },
-      yield: { chance: 0.10, apply: plant => plant.dataset.mutYield = "true" },
-      regrowth: { chance: 0.08, apply: plant => plant.dataset.mutRegrow = "true" },
-      resistance: { chance: 0.08, apply: plant => plant.dataset.mutResist = "true" }
-    };
+  visual: {
+    chance: 0.15,
+    apply: plant => plant.classList.add("mutated-visual")
+  },
+  growth: {
+    chance: 0.10,
+    apply: plant => {
+      plant.classList.add("mutated-growth");
+      plant.dataset.mutGrowth = "true";
+    }
+  },
+  yield: {
+    chance: 0.10,
+    apply: plant => {
+      plant.classList.add("mutated-yield");
+      plant.dataset.mutYield = "true";
+    }
+  },
+  regrowth: {
+    chance: 0.08,
+    apply: plant => {
+      plant.classList.add("mutated-regrow");
+      plant.dataset.mutRegrow = "true";
+    }
+  },
+  resistance: {
+    chance: 0.08,
+    apply: plant => {
+      plant.classList.add("mutated-resist");
+      plant.dataset.mutResist = "true";
+    }
+  }
+};
+
 
     // --- Environmental Events ---
     const events = {
@@ -708,8 +759,14 @@
     }
     randomEventLoop();
     function applyMutations(plant) {
-  // Clear previous mutation
-  plant.classList.remove("mutated");
+  // Remove all mutation visuals and data
+  plant.classList.remove(
+    "mutated-visual",
+    "mutated-growth",
+    "mutated-yield",
+    "mutated-regrow",
+    "mutated-resist"
+  );
   delete plant.dataset.mutGrowth;
   delete plant.dataset.mutYield;
   delete plant.dataset.mutRegrow;
@@ -727,11 +784,10 @@
   if (chosen) {
     mutationTypes[chosen].apply(plant);
     plant.dataset.mutated = chosen;
-    if (chosen === "visual") plant.classList.add("mutated");
   } else {
     plant.dataset.mutated = "";
   }
-  // Optional: update tooltip
+  // Update tooltip
   const tooltip = plant.querySelector('.tooltip');
   if (tooltip) {
     tooltip.textContent = chosen ? `Mutation: ${chosen}` : "";
