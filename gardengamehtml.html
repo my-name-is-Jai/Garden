@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ultimate Garden Game</title>
+  <link rel="stylesheet" href="gardengamecss.css">
+</head>
+<body>
+  <h1 id="gardenTitleDisplay"
+      style="text-align:center; margin-bottom:0.5em; cursor:pointer; background:#e0ffe0; border-radius:10px; display:inline-block; padding:0.3em 1em; border:2px solid #77cc77; user-select:none; margin-left:50%; transform:translateX(-50%);"
+      onclick="promptGardenName()">
+    🌻 Please choose a name's Garden
+  </h1>
+  <button id="resetGameBtn">Reset Game</button>
+  <button id="achievementsBtn">Achievements</button>
+  <div id="coinsDisplay">Coins: <span id="coins">100</span></div>
+
+  <div id="main">
+    <div id="shop">
+      <h2>Seed Shop</h2>
+      <button onclick="buySeed('sunflower')">Buy Sunflower Seed (10 coins)</button><br>
+      <button onclick="buySeed('strawberry')">Buy Strawberry Seed (50 coins)</button><br>
+      <button onclick="buySeed('blueberry')">Buy Blueberry Seed (400 coins)</button><br>
+      <button onclick="buySeed('Tulip')">Buy Tulip Seed (600 coins)</button><br>
+      <button onclick="buySeed('Tomato')">Buy Tomato Seed (800 coins)</button><br>
+      <button onclick="buySeed('Potato')">Buy Potato Seed (1000 coins)</button><br>
+      <button onclick="buySeed('Peach')">Buy Peach Seed (1250 coins)</button><br>
+      <button onclick="buySeed('Papaya')">Buy Papaya Seed (1500 coins)</button><br>
+      <button onclick="buySeed('Pineapple')">Buy Pineapple Seed (2000 coins)</button><br>
+      <button onclick="buySeed('grape')">Buy Grape Seed (2500 coins)</button><br>
+      <button onclick="buySeed('apple')">Buy Apple Seed (3000 coins)</button><br>
+      <button onclick="buySeed('pear')">Buy Pear Seed (3500 coins)</button><br>
+      <button onclick="buySeed('orange')">Buy Orange Seed (4500 coins)</button><br>
+      <button onclick="buySeed('blackberry')">Buy Blackberry Seed (5000 coins)</button><br>
+      <button onclick="buySeed('coconut')">Buy Coconut Seed (7500 coins)</button><br>
+      <button onclick="buySeed('bamboo')">Buy Bamboo Seed (9000 coins)</button><br>
+    </div>
+    <div id="inventory">
+      <h2>Inventory</h2>
+      <p>Sunflower Seeds: <span id="sunflowerCount">0</span></p>
+      <p>Strawberry Seeds: <span id="strawberryCount">0</span></p>
+      <p>Blueberry Seeds: <span id="blueberryCount">0</span></p>
+      <p>Tulip Seeds: <span id="TulipCount">0</span></p>
+      <p>Tomato Seeds: <span id="TomatoCount">0</span></p>
+      <p>Potato Seeds: <span id="PotatoCount">0</span></p>
+      <p>Peach Seeds: <span id="PeachCount">0</span></p>
+      <p>Papaya Seeds: <span id="PapayaCount">0</span></p>
+      <p>Pineapple Seeds: <span id="PineappleCount">0</span></p>
+      <p>Grape Seeds: <span id="grapeCount">0</span></p>
+      <p>Apple Seeds: <span id="appleCount">0</span></p>
+      <p>Pear Seeds: <span id="pearCount">0</span></p>
+      <p>Orange Seeds: <span id="orangeCount">0</span></p>
+      <p>Blackberry Seeds: <span id="blackberryCount">0</span></p>
+      <p>Coconut Seeds: <span id="coconutCount">0</span></p>
+      <p>Bamboo Seeds: <span id="bambooCount">0</span></p>
+      <p>Fertilizer: <span id="fertilizerCount">0</span></p>
+      <p>Watering Can: <span id="wateringCount">0</span></p>
+      <p>Trowel Uses: <span id="trowelCount">0</span></p>
+      <button onclick="plantSeed('sunflower')">Plant Sunflower 🌱</button>
+      <button onclick="plantSeed('strawberry')">Plant Strawberry 🌱</button>
+      <button onclick="plantSeed('blueberry')">Plant Blueberry 🌱</button>
+      <button onclick="plantSeed('Tulip')">Plant Tulip 🌱</button>
+      <button onclick="plantSeed('Tomato')">Plant Tomato 🌱</button>
+      <button onclick="plantSeed('Potato')">Plant Potato 🌱</button>
+      <button onclick="plantSeed('Peach')">Plant Peach 🌱</button>
+      <button onclick="plantSeed('Papaya')">Plant Papaya 🌱</button>
+      <button onclick="plantSeed('Pineapple')">Plant Pineapple 🌱</button>
+      <button onclick="plantSeed('grape')">Plant Grape 🌱</button>
+      <button onclick="plantSeed('apple')">Plant Apple 🌱</button>
+      <button onclick="plantSeed('pear')">Plant Pear 🌱</button>
+      <button onclick="plantSeed('orange')">Plant Orange 🌱</button>
+      <button onclick="plantSeed('blackberry')">Plant Blackberry 🌱</button>
+      <button onclick="plantSeed('coconut')">Plant Coconut 🌱</button>
+      <button onclick="plantSeed('bamboo')">Plant Bamboo 🌱</button>
+    </div>
+    <div id="gearShop">
+      <h2>Gear Shop</h2>
+      <button onclick="buyFertilizer()">Buy Fertilizer (50 coins)</button><br>
+      <button onclick="buyWateringCan()">Buy Watering Can (150 coins)</button><br>
+      <button onclick="buyTrowel()">Buy Trowel (200 coins, 5 uses)</button><br>
+      <button onclick="buyHarvestAll()">Buy Harvest All (500 coins)</button>
+    </div>
+    <div id="petShopBox">
+      <h2>🐾 Pet Shop</h2>
+      <div id="petEggsDisplay"></div>
+      <p><em>Restocks in: <span id="petRestockTimer">15:00</span></em></p>
+    </div>
+    <div id="researchCenterBox">
+  <h2 style="display:inline-block;">🥕 Bunny Research Center</h2>
+  <button id="closeCarrotResearchBtn" style="float:right; font-size:18px; background:none; border:none; color:#77cc77; cursor:pointer;">✖</button>
+  <button onclick="openCarrotResearch()">View 50 Carrot Types</button>
+  <div id="carrotListDisplay" style="display:none;margin-top:10px;"></div>
+</div>
+
+  <h2 id="gardenTitle" style="text-align:center; cursor:pointer; color:#388e3c; user-select:none;">Garden</h2>
+  <div id="gardenAreaBox">
+    <div id="garden"></div>
+  </div>
+
+  <div class="gardenInfoWrapper">
+    <div id="gardenInfoPanel">
+      <h3>Garden Info</h3>
+      <p id="gardenTime"></p>
+      <p id="totalCoinsEarned"></p>
+      <button onclick="buyHarvestAll()">Buy Harvest All (500 coins)</button>
+      <p id="harvestAllUses"></p>
+      <h4>Plants in Garden</h4>
+      <ul id="gardenPlantCounts"></ul>
+      <div style="text-align:center;">
+        <button onclick="toggleGardenInfo()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="plantInfoPanel">
+    <button id="closePlantInfo" style="position:absolute;top:8px;right:10px;font-size:18px;background:none;border:none;color:#77cc77;cursor:pointer;">✖</button>
+    <h3>Plant Info</h3>
+    <p id="infoType"></p>
+    <p id="infoSell"></p>
+    <p id="infoTime"></p>
+    <div id="infoPlantCounts"></div>
+    <button onclick="applyFertilizerToInfo()">Use Fertilizer</button>
+    <button onclick="applyWateringToInfo()">Use Watering Can</button>
+    <button id="trowelRemoveBtn" style="display:none;">Use Trowel to Remove Plant</button>
+  </div>
+
+  <div id="achievementsModal">
+    <h3 style="margin-top:0;">Achievements</h3>
+    <ul id="achievementsList" style="padding-left:20px;margin-bottom:1em;"></ul>
+    <div style="text-align:center;">
+      <button onclick="document.getElementById('achievementsModal').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <script src="gardengamejs.js"></script>
+</body>
+</html>

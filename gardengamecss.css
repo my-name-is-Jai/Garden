@@ -1,0 +1,275 @@
+/* Garden Game CSS */
+    body {
+      font-family: sans-serif;
+      background: #cdeccd;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin: 1rem 0 0.5rem;
+    }
+    #coinsDisplay {
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    #main {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem;
+      flex-wrap: wrap;
+    }
+    #shop, #inventory, #gearShop, #petShopBox, #researchCenterBox {
+      padding: 1rem;
+      border-radius: 10px;
+      background: #e0ffe0;
+      width: 30%;
+      margin: 10px auto;
+    }
+    #gearShop {
+      text-align: right;
+    }
+#gardenAreaBox {
+  position: relative;
+  width: 100vw; /* Full viewport width */
+  max-width: 100%;
+  margin: 32px 0 0 0; /* Remove auto centering, add space above */
+  background: #8B5A2B; /* brown */
+  border: 6px solid #5C3317;
+  border-radius: 0; /* Remove rounded corners for edge-to-edge look */
+  box-shadow: 0 4px 24px #b6e2b6;
+  padding: 24px 0 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  left: 0;
+  right: 0;
+}
+
+#garden {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  min-height: 220px;
+  background: repeating-linear-gradient(
+    135deg, #a0522d 0 30px, #8B5A2B 30px 60px
+  );
+  border-radius: 0;
+  width: 98vw; /* Nearly full width, with a little padding */
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+}
+    .plant {
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle, #aadfaa, #7cc67c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      position: relative;
+      transition: box-shadow 0.3s;
+      cursor: pointer;
+    }
+    .flower { cursor: pointer; }
+    .sunflower { background: radial-gradient(circle, yellow, orange); }
+    .strawberry { background: radial-gradient(circle, pink, red); }
+    .blueberry { background: radial-gradient(circle, lightblue, darkblue); }
+    .tulip, .Tulip { background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 0, 136)); }
+    .tomato, .Tomato { background: radial-gradient(circle, rgb(255, 0, 0), rgb(255, 230, 0)); }
+    .potato, .Potato { background: radial-gradient(circle, rgba(255, 204, 0, 0.296), rgb(255, 191, 0)); }
+    .peach, .Peach { background: radial-gradient(circle, rgba(255, 153, 0, 0.296), rgba(255, 179, 0, 0.882)); }
+    .papaya, .Papaya { background: radial-gradient(circle, #ffe066, #ffb347); }
+    .pineapple, .Pineapple { background: radial-gradient(circle, #ffe066, #ffe066 60%, #c2b900 100%); }
+    .grape { background: radial-gradient(circle, #b388ff, #6a1b9a); }
+    .apple { background: radial-gradient(circle, #b2ff59, #388e3c); }
+    .pear { background: radial-gradient(circle, #e0ffb3, #b2c248); }
+    .orange { background: radial-gradient(circle, #ffe0b2, #ff9800); }
+    .blackberry { background: radial-gradient(circle, #d1b3ff, #2d0036); }
+    .coconut { background: radial-gradient(circle, #fffbe6, #b8a47e); }
+    .bamboo { background: radial-gradient(circle, #b7e07b, #4e8c2b); }
+    .fertilized { animation: glow 1s infinite alternate; }
+    .mutated { animation: glow 1.2s infinite alternate; }
+    @keyframes glow {
+      from { box-shadow: 0 0 5px 2px gold; }
+      to   { box-shadow: 0 0 12px 6px orange; }
+    }
+    button {
+      margin: 0.3rem;
+      padding: 0.5rem 1rem;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #77cc77;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover { background-color: #66bb66; }
+    .tooltip {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #444;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+      display: none;
+    }
+    .plant:hover .tooltip { display: block; }
+    #plantInfoPanel {
+      margin-top: 20px;
+      background: #fff;
+      border: 2px solid #77cc77;
+      border-radius: 10px;
+      padding: 1rem;
+      width: 220px;
+      display: none;
+      position: relative;
+    }
+    #plantInfoPanel h3 { margin: 0 0 0.5rem; }
+    #gardenInfoPanel {
+      margin: 30px auto 0 auto;
+      background: #e0ffe0;
+      border-radius: 10px;
+      padding: 1rem 2rem;
+      width: 350px;
+      box-shadow: 0 2px 8px #b6e2b6;
+      display: none;
+      position: static;
+    }
+    #gardenInfoPanel h3 { margin-top: 0; }
+    .gardenInfoWrapper {
+      position: relative;
+      width: 350px;
+      margin: 30px auto 0 auto;
+    }
+    #resetGameBtn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: #e57373;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7em 1.2em;
+      font-size: 16px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px #888;
+      cursor: pointer;
+    }
+    #resetGameBtn:hover {
+      background: #d32f2f;
+    }
+    #achievementsBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ffd700;
+      color: #444;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7em 1.2em;
+      font-size: 16px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px #888;
+      cursor: pointer;
+    }
+    #achievementsBtn:hover {
+      background: #ffe066;
+    }
+    #achievementsModal {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 320px;
+      max-width: 90vw;
+      background: #fffbe6;
+      border: 2px solid #ffd700;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px #888;
+      padding: 1.2em 1.5em;
+      z-index: 2000;
+    }
+    #petShopBox, #researchCenterBox {
+      min-height: 120px;
+    }
+    /* --- Improved Pet Shop --- */
+    #petEggsDisplay {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .pet-card {
+      border: 2px solid #77cc77;
+      border-radius: 14px;
+      padding: 18px 12px 12px 12px;
+      width: 140px;
+      background: linear-gradient(135deg, #f5fff5 70%, #e0ffe0 100%);
+      cursor: pointer;
+      margin: 0;
+      text-align: center;
+      box-shadow: 0 2px 8px #b6e2b6;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.2s;
+      font-size: 1.2em;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .pet-card:hover {
+      border-color: #388e3c;
+      background: #eaffea;
+      box-shadow: 0 4px 16px #77cc77;
+      transform: translateY(-4px) scale(1.04);
+    }
+    .pet-card .pet-emoji {
+      font-size: 2.5em;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .pet-card .pet-name {
+      font-weight: bold;
+      color: #388e3c;
+      margin-bottom: 4px;
+    }
+    .pet-card .pet-price {
+      color: #888;
+      font-size: 0.95em;
+    }
+    /* Unique visuals for each mutation */
+.mutated-visual {
+  animation: glow 1.2s infinite alternate;
+  box-shadow: 0 0 12px 6px orange, 0 0 24px 12px gold;
+}
+.mutated-growth {
+  border: 3px dashed #00cfff !important;
+  background: linear-gradient(135deg, #e0ffe0 60%, #b3f0ff 100%) !important;
+}
+.mutated-yield {
+  border: 3px solid gold !important;
+  background: linear-gradient(135deg, #fffbe0 60%, #ffe066 100%) !important;
+}
+.mutated-regrow {
+  border: 3px solid #77cc77 !important;
+  background: linear-gradient(135deg, #e0ffe0 60%, #baffba 100%) !important;
+  box-shadow: 0 0 8px 2px #77cc77;
+}
+.mutated-resist {
+  border: 3px double #b388ff !important;
+  background: linear-gradient(135deg, #f5e6ff 60%, #d1b3ff 100%) !important;
+  filter: grayscale(0.5);
+}
